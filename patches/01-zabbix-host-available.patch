@@ -1,0 +1,46 @@
+diff --git a/vendor/github.com/cavaliercoder/go-zabbix/host.go b/vendor/github.com/cavaliercoder/go-zabbix/host.go
+index cf31d0a..817b2b5 100644
+--- a/vendor/github.com/cavaliercoder/go-zabbix/host.go
++++ b/vendor/github.com/cavaliercoder/go-zabbix/host.go
+@@ -21,6 +21,9 @@ type Host struct {
+ 	// DisplayName is the visible name of the Host.
+ 	DisplayName string `json:"name,omitempty"`
+ 
++	// Available is the availability of the Host's Zabbix agent.
++	Available int `json:"available,string,omitempty"`
++
+ 	// Source is the origin of the Host and must be one of the HostSource
+ 	// constants.
+ 	Source int `json:"flags,string,omitempty"`
+diff --git a/vendor/github.com/cavaliercoder/go-zabbix/host_json.go b/vendor/github.com/cavaliercoder/go-zabbix/host_json.go
+index 54098a0..45c5489 100644
+--- a/vendor/github.com/cavaliercoder/go-zabbix/host_json.go
++++ b/vendor/github.com/cavaliercoder/go-zabbix/host_json.go
+@@ -8,12 +8,13 @@ import (
+ // jHost is a private map for the Zabbix API Host object.
+ // See: https://www.zabbix.com/documentation/2.2/manual/api/reference/host/object
+ type jHost struct {
+-	HostID   string      `json:"hostid"`
+-	Hostname string      `json:"host"`
+-	Flags    int         `json:"flags,string,omitempty"`
+-	Name     string      `json:"name,omitempty"`
+-	Macros   []HostMacro `json:"macros,omitempty"`
+-	Groups   []Hostgroup `json:"groups,omitempty"`
++	HostID    string      `json:"hostid"`
++	Hostname  string      `json:"host"`
++	Flags     int         `json:"flags,string,omitempty"`
++	Name      string      `json:"name,omitempty"`
++	Available int         `json:"available,string,omitempty"`
++	Macros    []HostMacro `json:"macros,omitempty"`
++	Groups    []Hostgroup `json:"groups,omitempty"`
+ }
+ 
+ // Host returns a native Go Host struct mapped from the given JSON Host data.
+@@ -24,6 +25,7 @@ func (c *jHost) Host() (*Host, error) {
+ 	host.HostID = c.HostID
+ 	host.Hostname = c.Hostname
+ 	host.DisplayName = c.Name
++	host.Available = c.Available
+ 	host.Macros = c.Macros
+ 	host.Groups = c.Groups
+ 	/*

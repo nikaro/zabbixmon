@@ -1,0 +1,16 @@
+# zabbix server authentication
+server = "https://zabbix.example.com"
+username = "myuser"
+password = "mypassword"
+
+# logging levels: debug, info, warning, error
+log_level = "warning"
+
+# filter types of alerts
+item_types = ["down", "unack", "ack", "unknown"]
+
+# minimum trigger severities: unknown, information, warning, average, high, critical
+min_severity = "average"
+
+# refresh data every N seconds
+refresh = 60

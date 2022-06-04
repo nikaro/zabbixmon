@@ -1,0 +1,22 @@
+before:
+  hooks:
+    - "go mod tidy"
+builds:
+  - env:
+      - "CGO_ENABLED=0"
+    goos:
+      - "darwin"
+      - "freebsd"
+      - "linux"
+      - "openbsd"
+      - "windows"
+    goarch:
+      - "amd64"
+      - "arm64"
+changelog:
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "typo"
