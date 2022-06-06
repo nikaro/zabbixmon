@@ -1,10 +1,10 @@
 # ZabbixMon
 
-CLI application to show currents alerts on Zabbix. Like [Nagstamon](https://nagstamon.de) in your terminal but for Zabbix only.
+CLI application to show currents alerts on Zabbix. Like [Nagstamon](https://nagstamon.de) in your terminal, for Zabbix only.
 
 ## Installation
 
-Make sure `$GOPATH/bin` is in your `$PATH` and execute:
+Ensure `$GOPATH/bin` is in your `$PATH` and execute:
 
 ```
 go install github.com/nikaro/zabbixmon@latest
@@ -16,6 +16,8 @@ From sources:
 make
 sudo make install
 ```
+
+You can also download pre-compiled binaries in [Releases](https://github.com/nikaro/zabbixmon/releases).
 
 ## Usage
 
@@ -40,7 +42,7 @@ Flags:
 
 ## Configuration
 
-Copy [config.dist.toml](config.dist.toml) one of these locations:
+Copy [config.dist.toml](config.dist.toml) in one of these locations:
 
 * `/etc/zabbixmon/config.toml`
 * `$XDG_CONFIG_HOME/zabbixmon/config.toml`
