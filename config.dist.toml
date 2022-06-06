@@ -4,13 +4,16 @@ username = "myuser"
 password = "mypassword"
 
 # logging levels: debug, info, warning, error
-log_level = "warning"
+log-level = "warning"
 
 # filter types of alerts
-item_types = ["down", "unack", "ack", "unknown"]
+item-types = ["down", "unack", "ack", "unknown"]
 
 # minimum trigger severities: unknown, information, warning, average, high, critical
-min_severity = "average"
+min-severity = "average"
 
 # refresh data every N seconds
 refresh = 60
+
+# enable notifications
+notify = false

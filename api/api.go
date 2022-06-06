@@ -7,7 +7,6 @@ import (
 	"github.com/cavaliercoder/go-zabbix"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
-	"github.com/spf13/viper"
 )
 
 var triggerSeverity = map[string]int{
@@ -33,12 +32,12 @@ type Item struct {
 	Url         string
 }
 
-func GetSession() *zabbix.Session {
+func GetSession(server string, username string, password string) *zabbix.Session {
 	// authenticate to zabbix server
 	zapi, err := zabbix.NewSession(
-		viper.GetString("server")+"/api_jsonrpc.php",
-		viper.GetString("username"),
-		viper.GetString("password"),
+		server+"/api_jsonrpc.php",
+		username,
+		password,
 	)
 	if err != nil {
 		panic(err)
@@ -47,7 +46,9 @@ func GetSession() *zabbix.Session {
 	return zapi
 }
 
-func GetTriggers(zapi *zabbix.Session) (triggerItemsUnack []Item, triggerItemsAck []Item) {
+func GetTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []Item, triggerItemsAck []Item) {
+	server := zapi.URL[:strings.LastIndex(zapi.URL, "/")]
+
 	// query triggers with unresolved problems
 	triggerParams := zabbix.TriggerGetParams{
 		GetParameters: zabbix.GetParameters{
@@ -61,13 +62,13 @@ func GetTriggers(zapi *zabbix.Session) (triggerItemsUnack []Item, triggerItemsAc
 		SelectHosts:       []string{"host"},
 		SelectLastEvent:   "extend",
 		ExpandDescription: true,
-		MinSeverity:       triggerSeverity[viper.GetString("min-severity")],
+		MinSeverity:       triggerSeverity[minSeverity],
 	}
 	triggers, err := zapi.GetTriggers(triggerParams)
 	if err != nil {
 		panic(err)
 	}
-	log.Debug().Str("type", "triggers_raw").Str("scope", "all").Str("triggers", fmt.Sprintf("%v", triggers)).Send()
+	log.Debug().Str("type", "triggers_raw").Str("scope", "all").Str("triggers", fmt.Sprintf("%#v", triggers)).Send()
 
 	// ensure we only have currently in problem state
 	triggers = lo.Filter[zabbix.Trigger](triggers, func(x zabbix.Trigger, _ int) bool { return x.LastEvent.Value == 1 })
@@ -80,23 +81,25 @@ func GetTriggers(zapi *zabbix.Session) (triggerItemsUnack []Item, triggerItemsAc
 			Status:      strings.ToUpper(severity[x.Severity]),
 			Description: x.Description,
 			Ack:         x.LastEvent.Acknowledged,
-			Url:         fmt.Sprintf("%s/tr_events.php?triggerid=%s&eventid=%s", viper.GetString("server"), x.TriggerID, x.LastEvent.EventID),
+			Url:         fmt.Sprintf("%s/tr_events.php?triggerid=%s&eventid=%s", server, x.TriggerID, x.LastEvent.EventID),
 		}
 	})
-	log.Debug().Str("type", "triggers").Str("scope", "all").Str("items", fmt.Sprintf("%v", triggerItemsAll)).Send()
+	log.Debug().Str("type", "triggers").Str("scope", "all").Str("items", fmt.Sprintf("%#v", triggerItemsAll)).Send()
 
 	// filter unacknowledged items
 	triggerItemsUnack = lo.Filter[Item](triggerItemsAll, func(x Item, _ int) bool { return !x.Ack })
-	log.Debug().Str("type", "triggers").Str("scope", "unack").Str("items", fmt.Sprintf("%v", triggerItemsUnack)).Send()
+	log.Debug().Str("type", "triggers").Str("scope", "unack").Str("items", fmt.Sprintf("%#v", triggerItemsUnack)).Send()
 
 	// filter acknowledged items
 	triggerItemsAck = lo.Filter[Item](triggerItemsAll, func(x Item, _ int) bool { return x.Ack })
-	log.Debug().Str("type", "triggers").Str("scope", "ack").Str("items", fmt.Sprintf("%v", triggerItemsAck)).Send()
+	log.Debug().Str("type", "triggers").Str("scope", "ack").Str("items", fmt.Sprintf("%#v", triggerItemsAck)).Send()
 
 	return triggerItemsUnack, triggerItemsAck
 }
 
 func GetHosts(zapi *zabbix.Session) (hostItemsUnavailable []Item, hostItemsUnknown []Item) {
+	server := zapi.URL[:strings.LastIndex(zapi.URL, "/")]
+
 	// query hosts with problems
 	hostParams := zabbix.HostGetParams{
 		GetParameters: zabbix.GetParameters{
@@ -108,7 +111,7 @@ func GetHosts(zapi *zabbix.Session) (hostItemsUnavailable []Item, hostItemsUnkno
 	if err != nil {
 		panic(err)
 	}
-	log.Debug().Str("type", "hosts_raw").Str("scope", "all").Str("hosts", fmt.Sprintf("%v", hosts)).Send()
+	log.Debug().Str("type", "hosts_raw").Str("scope", "all").Str("hosts", fmt.Sprintf("%#v", hosts)).Send()
 
 	// tranform hosts into structured items
 	availability := lo.Invert[string, int](hostAvalability)
@@ -118,38 +121,38 @@ func GetHosts(zapi *zabbix.Session) (hostItemsUnavailable []Item, hostItemsUnkno
 			Status:      availability[x.Available],
 			Description: fmt.Sprintf("Host in %s state", availability[x.Available]),
 			Ack:         false,
-			Url:         fmt.Sprintf("%s/hostinventories.php?hostid=%s", viper.GetString("server"), x.HostID),
+			Url:         fmt.Sprintf("%s/hostinventories.php?hostid=%s", server, x.HostID),
 		}
 	})
-	log.Debug().Str("type", "hosts").Str("scope", "all").Str("items", fmt.Sprintf("%v", hostItemsAll)).Send()
+	log.Debug().Str("type", "hosts").Str("scope", "all").Str("items", fmt.Sprintf("%#v", hostItemsAll)).Send()
 
 	// filter unavailable items
 	hostItemsUnavailable = lo.Filter[Item](hostItemsAll, func(x Item, _ int) bool { return x.Status == "UNAVAILABLE" })
-	log.Debug().Str("type", "hosts").Str("scope", "unavailable").Str("items", fmt.Sprintf("%v", hostItemsUnavailable)).Send()
+	log.Debug().Str("type", "hosts").Str("scope", "unavailable").Str("items", fmt.Sprintf("%#v", hostItemsUnavailable)).Send()
 
 	// filter unknown items
 	hostItemsUnknown = lo.Filter[Item](hostItemsAll, func(x Item, _ int) bool { return x.Status == "UNKNOWN" })
-	log.Debug().Str("type", "hosts").Str("scope", "unknown").Str("items", fmt.Sprintf("%v", hostItemsUnknown)).Send()
+	log.Debug().Str("type", "hosts").Str("scope", "unknown").Str("items", fmt.Sprintf("%#v", hostItemsUnknown)).Send()
 
 	return hostItemsUnavailable, hostItemsUnknown
 }
 
-func GetItems(zapi *zabbix.Session) (items []Item) {
+func GetItems(zapi *zabbix.Session, itemTypes []string, minSeverity string) (items []Item) {
 	// get triggers
-	triggerItemsUnack, triggerItemsAck := GetTriggers(zapi)
-	if present := lo.Contains[string](viper.GetStringSlice("item-types"), "unack"); present {
+	triggerItemsUnack, triggerItemsAck := GetTriggers(zapi, minSeverity)
+	if present := lo.Contains[string](itemTypes, "unack"); present {
 		items = append(items, triggerItemsUnack...)
 	}
-	if present := lo.Contains[string](viper.GetStringSlice("item-types"), "ack"); present {
+	if present := lo.Contains[string](itemTypes, "ack"); present {
 		items = append(items, triggerItemsAck...)
 	}
 
 	// get hosts
 	hostItemsUnavailable, hostItemsUnknown := GetHosts(zapi)
-	if present := lo.Contains[string](viper.GetStringSlice("item-types"), "down"); present {
+	if present := lo.Contains[string](itemTypes, "down"); present {
 		items = append(items, hostItemsUnavailable...)
 	}
-	if present := lo.Contains[string](viper.GetStringSlice("item-types"), "unknown"); present {
+	if present := lo.Contains[string](itemTypes, "unknown"); present {
 		items = append(items, hostItemsUnknown...)
 	}
 

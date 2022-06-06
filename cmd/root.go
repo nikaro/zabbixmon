@@ -12,6 +12,7 @@ import (
 	"github.com/gen2brain/beeep"
 	"github.com/markkurossi/tabulate"
 	"github.com/nikaro/zabbixmon/api"
+	"github.com/nikaro/zabbixmon/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
@@ -29,36 +30,7 @@ var rootCmd = &cobra.Command{
 
 // initialize command
 func init() {
-	var configFile string
-
-	// set config file flags
-	rootCmd.Flags().StringVarP(&configFile, "config", "c", "", "config file")
-
-	// set config file
-	if configFile != "" {
-		viper.SetConfigName(configFile)
-	} else {
-		viper.SetConfigName("config")
-
-		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
-
-		// search paths
-		viper.AddConfigPath("/etc/zabbixmon")
-		if os.Getenv("XDG_CONFIG_HOME") != "" {
-			viper.AddConfigPath("$XDG_CONFIG_HOME/zabbixmon")
-		}
-		viper.AddConfigPath(home + "/.config/zabbixmon")
-		viper.AddConfigPath(home + "/.zabbixmon")
-		viper.AddConfigPath(".")
-	}
-
-	// set defaults
-	viper.SetDefault("log-level", "info")
-	viper.SetDefault("item-types", []string{"down", "unack", "ack", "unknown"})
-	viper.SetDefault("min-severity", "average")
-	viper.SetDefault("refresh", 60)
-	viper.SetDefault("notify", false)
+	cobra.OnInitialize(config.InitConfig)
 
 	// set flags
 	rootCmd.Flags().StringP("server", "s", "", "zabbix server url")
@@ -79,13 +51,6 @@ func init() {
 	viper.BindPFlag("min-severity", rootCmd.Flags().Lookup("min-severity"))
 	viper.BindPFlag("item-types", rootCmd.Flags().Lookup("item-types"))
 	viper.BindPFlag("log-level", rootCmd.Flags().Lookup("log-level"))
-
-	// bind environment variables
-	viper.SetEnvPrefix("zxmon")
-	viper.AutomaticEnv()
-
-	// read config
-	viper.ReadInConfig()
 }
 
 // check and set global log level
@@ -124,7 +89,7 @@ func buildTable(items []api.Item) (table *tabulate.Tabulate) {
 		row.Column(x.Host)
 		row.Column(x.Status)
 		row.Column(x.Description)
-		row.Column(fmt.Sprintf("%v", x.Ack))
+		row.Column(fmt.Sprintf("%t", x.Ack))
 		row.Column(x.Url)
 	})
 
@@ -134,7 +99,7 @@ func buildTable(items []api.Item) (table *tabulate.Tabulate) {
 // send notification for all items
 func notify(items []api.Item) {
 	for _, item := range items {
-		log.Debug().Str("type", "new_item").Str("item", fmt.Sprintf("%v", item)).Send()
+		log.Debug().Str("type", "new_item").Str("item", fmt.Sprintf("%#v", item)).Send()
 		err := beeep.Notify(fmt.Sprintf("%s - %s", item.Status, item.Host), item.Description, "assets/information.png")
 		if err != nil {
 			panic(err)
@@ -145,17 +110,17 @@ func notify(items []api.Item) {
 func run(cmd *cobra.Command, args []string) {
 	var items []api.Item
 	var prevItems []api.Item
+	cfg := config.Config
 
 	// set log level
-	logLevel := viper.GetString("log-level")
+	logLevel := cfg.LogLevel
 	setLogLevel(logLevel)
 
 	// dump settings in logs
-	log.Debug().Str("type", "settings").Str("config_file", viper.ConfigFileUsed()).Send()
-	log.Debug().Str("type", "settings").Str("settings", fmt.Sprintf("%v", viper.AllSettings())).Send()
+	log.Debug().Str("type", "settings").Str("settings", fmt.Sprintf("%#v", cfg)).Send()
 
 	// zabbix auth
-	zapi := api.GetSession()
+	zapi := api.GetSession(cfg.Server, cfg.Username, cfg.Password)
 
 	// catch ctrl+c signal
 	c := make(chan os.Signal)
@@ -172,7 +137,7 @@ func run(cmd *cobra.Command, args []string) {
 		}
 
 		// fetch items
-		items = api.GetItems(zapi)
+		items = api.GetItems(zapi, cfg.ItemTypes, cfg.MinSeverity)
 
 		// build table
 		table := buildTable(items)
@@ -186,13 +151,13 @@ func run(cmd *cobra.Command, args []string) {
 		table.Print(os.Stdout)
 
 		// detect changes and send notification
-		if viper.GetBool("notify") && prevItems != nil {
+		if cfg.Notify && prevItems != nil {
 			newItems, _ := lo.Difference[api.Item](items, prevItems)
 			notify(newItems)
 		}
 
 		// wait
-		time.Sleep(time.Duration(viper.GetInt("refresh")) * time.Second)
+		time.Sleep(time.Duration(cfg.Refresh) * time.Second)
 	}
 }
 
