@@ -2,7 +2,7 @@ PREFIX?=/usr/local
 _INSTDIR=${DESTDIR}${PREFIX}
 BINDIR?=${_INSTDIR}/bin
 MANDIR?=${_INSTDIR}/share/man
-APP=devc
+APP=zabbixmon
 
 GOOS?=$(shell go env GOOS)
 GOARCH?=$(shell go env GOARCH)
@@ -14,7 +14,7 @@ all: build
 ## build: Build for the current target
 build:
 	@echo "Building..."
-	env CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build -mod vendor -o build/${APP}-${GOOS}-${GOARCH} zabbixmon.go
+	env CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build -mod vendor -o build/${APP}-${GOOS}-${GOARCH} ${APP}.go
 
 .PHONY: build-all
 ## build-all: Build for all targets
@@ -41,7 +41,7 @@ uninstall:
 .PHONY: run
 ## run: Runs go run
 run:
-	go run -race zabbixmon.go
+	go run -race ${APP}.go
 
 .PHONY: clean
 ## clean: Cleans the binary
