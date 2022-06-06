@@ -1,6 +1,6 @@
 # ZabbixMon
 
-CLI application to show currents alerts on Zabbix. Like [Nagstamon](https://nagstamon.de) but for Zabbix and in your terminal.
+CLI application to show currents alerts on Zabbix. Like [Nagstamon](https://nagstamon.de) in your terminal but for Zabbix only.
 
 ## Installation
 
@@ -40,7 +40,7 @@ Flags:
 
 ## Configuration
 
-Copy [config.dist.toml](blob/main/config.dist.toml) one of these locations:
+Copy [config.dist.toml](config.dist.toml) one of these locations:
 
 * `/etc/zabbixmon/config.toml`
 * `$XDG_CONFIG_HOME/zabbixmon/config.toml`
