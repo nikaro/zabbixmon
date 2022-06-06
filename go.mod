@@ -9,7 +9,7 @@ require github.com/spf13/viper v1.12.0
 require github.com/gen2brain/beeep v0.0.0-20220518085355-d7852edf42fc
 
 require (
-	github.com/cavaliercoder/go-zabbix v0.0.0-20210304010121-96120c17dd42
+	github.com/cavaliercoder/go-zabbix v0.0.0-20220606012333-8601f92dd2eb
 	github.com/markkurossi/tabulate v0.0.0-20211112080948-67dabd3f2db2
 	github.com/rs/zerolog v1.26.1
 	github.com/samber/lo v1.21.0

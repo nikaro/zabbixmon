@@ -1,4 +1,4 @@
-# github.com/cavaliercoder/go-zabbix v0.0.0-20210304010121-96120c17dd42
+# github.com/cavaliercoder/go-zabbix v0.0.0-20220606012333-8601f92dd2eb
 ## explicit; go 1.16
 github.com/cavaliercoder/go-zabbix
 # github.com/fsnotify/fsnotify v1.5.4
