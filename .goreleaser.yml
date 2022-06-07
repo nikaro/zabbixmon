@@ -1,6 +1,9 @@
+---
+
 before:
   hooks:
     - "go mod tidy"
+
 builds:
   - env:
       - "CGO_ENABLED=0"
@@ -11,6 +14,7 @@ builds:
     goarch:
       - "amd64"
       - "arm64"
+
 changelog:
   filters:
     exclude:
@@ -18,3 +22,42 @@ changelog:
       - "^test:"
       - "^ci:"
       - "typo"
+
+aurs:
+  - name: "zabbixmon-bin"
+    homepage: "https://github.con/nikaro/zabbixmon"
+    description: "CLI application to show currents alerts on Zabbix."
+    maintainers:
+      - "Nicolas Karolak <nicolas at karolak dot fr>"
+    license: "GPLv3"
+    private_key: "{{ .Env.AUR_KEY }}"
+    git_url: "ssh://aur@aur.archlinux.org/zabbixmon-bin.git"
+    package: |-
+      install -Dm755 "./zabbixmon" "${pkgdir}/usr/bin/zabbixmon"
+      install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/zabbixmon/LICENSE"
+
+brews:
+  - name: "zabbixmon"
+    homepage: "https://github.con/nikaro/zabbixmon"
+    description: "CLI application to show currents alerts on Zabbix."
+    license: "GPLv3"
+    tap:
+      owner: "nikaro"
+      name: "homebrew-tap"
+      token: "{{ .Env.GH_PAT }}"
+    test: |-
+      system "#{bin}/zabbixmon --help"
+
+nfpms:
+  - package_name: "zabbixmon"
+    homepage: "https://github.con/nikaro/zabbixmon"
+    description: "CLI application to show currents alerts on Zabbix."
+    maintainer: "Nicolas Karolak <nicolas@karolak.fr>"
+    license: "GPLv3"
+    formats:
+      - "apk"
+      - "deb"
+      - "rpm"
+    contents:
+      - src: "LICENSE"
+        dst: "/usr/share/licenses/zabbixmon/LICENSE"
