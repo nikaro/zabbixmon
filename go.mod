@@ -11,7 +11,7 @@ require github.com/gen2brain/beeep v0.0.0-20220518085355-d7852edf42fc
 require (
 	github.com/cavaliercoder/go-zabbix v0.0.0-20220606012333-8601f92dd2eb
 	github.com/markkurossi/tabulate v0.0.0-20211112080948-67dabd3f2db2
-	github.com/rs/zerolog v1.26.1
+	github.com/rs/zerolog v1.27.0
 	github.com/samber/lo v1.21.0
 )
 
@@ -22,6 +22,8 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
+	github.com/mattn/go-colorable v0.1.12 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
