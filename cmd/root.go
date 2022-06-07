@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -141,6 +142,17 @@ func run(cmd *cobra.Command, args []string) {
 
 		// build table
 		table := buildTable(items)
+
+		// dump json if output is redirected
+		o, _ := os.Stdout.Stat()
+		if (o.Mode() & os.ModeCharDevice) != os.ModeCharDevice {
+			if data, err := json.Marshal(table); err != nil {
+				panic(err)
+			} else {
+				fmt.Println(string(data))
+				return
+			}
+		}
 
 		// clear terminal
 		cmd := lo.Ternary[*exec.Cmd](runtime.GOOS == "windows", exec.Command("cmd", "/c", "cls"), exec.Command("clear"))
