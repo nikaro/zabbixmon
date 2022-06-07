@@ -10,9 +10,8 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/nu7hatch/gouuid"
 	"syscall"
-
-	uuid "github.com/nu7hatch/gouuid"
 )
 
 var toastTemplate *template.Template
