@@ -39,14 +39,14 @@ aurs:
 brews:
   - name: "zabbixmon"
     homepage: "https://github.con/nikaro/zabbixmon"
-    description: "CLI application to show currents alerts on Zabbix."
-    license: "GPLv3"
+    description: "CLI application to show currents alerts on Zabbix"
+    license: "GPL-3.0-or-later"
     tap:
       owner: "nikaro"
       name: "homebrew-tap"
       token: "{{ .Env.GH_PAT }}"
     test: |-
-      system "#{bin}/zabbixmon --help"
+      system "#{bin}/zabbixmon", "--help"
 
 nfpms:
   - package_name: "zabbixmon"
