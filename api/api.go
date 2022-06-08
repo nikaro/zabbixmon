@@ -40,7 +40,7 @@ func GetSession(server string, username string, password string) *zabbix.Session
 		password,
 	)
 	if err != nil {
-		panic(err)
+		log.Error().Err(err).Send()
 	}
 
 	return zapi
@@ -66,7 +66,7 @@ func GetTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []
 	}
 	triggers, err := zapi.GetTriggers(triggerParams)
 	if err != nil {
-		panic(err)
+		log.Error().Err(err).Send()
 	}
 	log.Debug().Str("type", "triggers_raw").Str("scope", "all").Str("triggers", fmt.Sprintf("%#v", triggers)).Send()
 
@@ -109,7 +109,7 @@ func GetHosts(zapi *zabbix.Session) (hostItemsUnavailable []Item, hostItemsUnkno
 	}
 	hosts, err := zapi.GetHosts(hostParams)
 	if err != nil {
-		panic(err)
+		log.Error().Err(err).Send()
 	}
 	log.Debug().Str("type", "hosts_raw").Str("scope", "all").Str("hosts", fmt.Sprintf("%#v", hosts)).Send()
 

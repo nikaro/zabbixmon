@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
@@ -25,7 +26,8 @@ func InitConfig() {
 
 	home, err := os.UserHomeDir()
 	if err != nil {
-		panic(err)
+		log.Error().Err(err).Send()
+		os.Exit(1)
 	}
 
 	// search paths

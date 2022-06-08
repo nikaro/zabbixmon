@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -67,10 +68,13 @@ func setLogLevel(logLevel string) {
 	}
 
 	// check log level
-	if _, found := lo.Find[string](lo.Keys[string, zerolog.Level](logLevels), func(i string) bool {
+	logLevelsKeys := lo.Keys[string, zerolog.Level](logLevels)
+	if _, found := lo.Find[string](logLevelsKeys, func(i string) bool {
 		return i == logLevel
 	}); !found {
-		panic(fmt.Sprintf("unknown log level '%s'", logLevel))
+		err := errors.New(fmt.Sprintf("unknown log level '%s', not in %v", logLevel, logLevelsKeys))
+		log.Error().Err(err).Send()
+		os.Exit(1)
 	}
 
 	// set log level
@@ -103,7 +107,8 @@ func notify(items []api.Item) {
 		log.Debug().Str("type", "new_item").Str("item", fmt.Sprintf("%#v", item)).Send()
 		err := beeep.Notify(fmt.Sprintf("%s - %s", item.Status, item.Host), item.Description, "assets/information.png")
 		if err != nil {
-			panic(err)
+			log.Error().Err(err).Send()
+			os.Exit(1)
 		}
 	}
 }
@@ -147,7 +152,8 @@ func run(cmd *cobra.Command, args []string) {
 		o, _ := os.Stdout.Stat()
 		if (o.Mode() & os.ModeCharDevice) != os.ModeCharDevice {
 			if data, err := json.Marshal(table); err != nil {
-				panic(err)
+				log.Error().Err(err).Send()
+				os.Exit(1)
 			} else {
 				fmt.Println(string(data))
 				return
