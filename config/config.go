@@ -51,7 +51,10 @@ func InitConfig() {
 	viper.AutomaticEnv()
 
 	// read config
-	viper.ReadInConfig()
+	if err := viper.ReadInConfig(); err != nil {
+		log.Error().Err(err).Send()
+		os.Exit(1)
+	}
 
 	// update global config object
 	Config = &ZabbixMonConfig{
