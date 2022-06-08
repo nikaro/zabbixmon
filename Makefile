@@ -65,7 +65,7 @@ lint:
 .PHONY: format
 ## format: Runs goimports on the project
 format:
-	goimports -l -w .
+	fd -t file -e go -E vendor/ | xargs goimports -l -w
 
 .PHONY: test
 ## test: Runs go test
