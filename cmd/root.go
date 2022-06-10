@@ -151,7 +151,7 @@ func run(cmd *cobra.Command, args []string) {
 		// dump json if output is redirected
 		o, _ := os.Stdout.Stat()
 		if (o.Mode() & os.ModeCharDevice) != os.ModeCharDevice {
-			if data, err := json.Marshal(table); err != nil {
+			if data, err := json.Marshal(items); err != nil {
 				log.Error().Err(err).Send()
 				os.Exit(1)
 			} else {
