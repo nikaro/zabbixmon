@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/rs/zerolog/log"
@@ -54,6 +55,14 @@ func InitConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		log.Error().Err(err).Send()
 		os.Exit(1)
+	}
+
+	// check mandatory values
+	for _, setting := range []string{"server", "username", "password"} {
+		if !viper.IsSet(setting) {
+			log.Error().Str("scope", "config").Msg(fmt.Sprintf("'%s' is not set", setting))
+			os.Exit(1)
+		}
 	}
 
 	// update global config object
