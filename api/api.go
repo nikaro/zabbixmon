@@ -25,11 +25,11 @@ var hostAvalability = map[string]int{
 }
 
 type Item struct {
-	Host        string
-	Status      string
-	Description string
-	Ack         bool
-	Url         string
+	Host        string `json:"host"`
+	Status      string `json:"status"`
+	Description string `json:"desc"`
+	Ack         bool   `json:"ack"`
+	Url         string `json:"url"`
 }
 
 func GetSession(server string, username string, password string) *zabbix.Session {
