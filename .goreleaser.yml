@@ -45,6 +45,7 @@ brews:
       owner: "nikaro"
       name: "homebrew-tap"
       token: "{{ .Env.GH_PAT }}"
+    folder: "Formula"
     test: |-
       system "#{bin}/zabbixmon", "--help"
 
