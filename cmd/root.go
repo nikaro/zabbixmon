@@ -43,6 +43,7 @@ func init() {
 	rootCmd.Flags().StringP("min-severity", "m", "", "minimum trigger severity")
 	rootCmd.Flags().StringSliceP("item-types", "i", nil, "items state types")
 	rootCmd.Flags().StringP("log-level", "l", "", "logging level")
+	rootCmd.Flags().StringP("grep", "g", "", "regexp to filter items on hostname")
 
 	// bind flag to config
 	viper.BindPFlag("server", rootCmd.Flags().Lookup("server"))
@@ -53,6 +54,7 @@ func init() {
 	viper.BindPFlag("min-severity", rootCmd.Flags().Lookup("min-severity"))
 	viper.BindPFlag("item-types", rootCmd.Flags().Lookup("item-types"))
 	viper.BindPFlag("log-level", rootCmd.Flags().Lookup("log-level"))
+	viper.BindPFlag("grep", rootCmd.Flags().Lookup("grep"))
 }
 
 // check and set global log level
@@ -143,7 +145,7 @@ func run(cmd *cobra.Command, args []string) {
 		}
 
 		// fetch items
-		items = api.GetItems(zapi, cfg.ItemTypes, cfg.MinSeverity)
+		items = api.GetItems(zapi, cfg.ItemTypes, cfg.MinSeverity, cfg.Grep)
 
 		// build table
 		table := buildTable(items)

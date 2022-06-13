@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/cavaliercoder/go-zabbix"
@@ -137,7 +138,7 @@ func GetHosts(zapi *zabbix.Session) (hostItemsUnavailable []Item, hostItemsUnkno
 	return hostItemsUnavailable, hostItemsUnknown
 }
 
-func GetItems(zapi *zabbix.Session, itemTypes []string, minSeverity string) (items []Item) {
+func GetItems(zapi *zabbix.Session, itemTypes []string, minSeverity string, grep string) (items []Item) {
 	// get triggers
 	triggerItemsUnack, triggerItemsAck := GetTriggers(zapi, minSeverity)
 	if present := lo.Contains[string](itemTypes, "unack"); present {
@@ -154,6 +155,14 @@ func GetItems(zapi *zabbix.Session, itemTypes []string, minSeverity string) (ite
 	}
 	if present := lo.Contains[string](itemTypes, "unknown"); present {
 		items = append(items, hostItemsUnknown...)
+	}
+
+	// filter items on hostnames
+	if grep != "" {
+		hostRegexp := regexp.MustCompile(grep)
+		items = lo.Filter[Item](items, func(x Item, _ int) bool {
+			return hostRegexp.MatchString(x.Host)
+		})
 	}
 
 	return items

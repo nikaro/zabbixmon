@@ -18,6 +18,7 @@ type ZabbixMonConfig struct {
 	MinSeverity string
 	Refresh     int
 	Notify      bool
+	Grep        string
 }
 
 var Config *ZabbixMonConfig
@@ -46,6 +47,7 @@ func InitConfig() {
 	viper.SetDefault("min-severity", "average")
 	viper.SetDefault("refresh", 60)
 	viper.SetDefault("notify", false)
+	viper.SetDefault("grep", "")
 
 	// bind environment variables
 	viper.SetEnvPrefix("zxmon")
@@ -76,5 +78,6 @@ func InitConfig() {
 		MinSeverity: viper.GetString("min-severity"),
 		Refresh:     viper.GetInt("refresh"),
 		Notify:      viper.GetBool("notify"),
+		Grep:        viper.GetString("grep"),
 	}
 }
