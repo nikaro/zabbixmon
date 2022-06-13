@@ -58,9 +58,9 @@ setup:
 	go mod vendor
 
 .PHONY: lint
-## lint: Runs golint linter on the project
+## lint: Runs linter on the project
 lint:
-	golint .
+	staticcheck .
 
 .PHONY: format
 ## format: Runs goimports on the project
