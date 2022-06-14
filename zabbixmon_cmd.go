@@ -161,7 +161,9 @@ func run(cmd *cobra.Command, args []string) {
 		// clear terminal
 		cmd := lo.Ternary[*exec.Cmd](runtime.GOOS == "windows", exec.Command("cmd", "/c", "cls"), exec.Command("clear"))
 		cmd.Stdout = os.Stdout
-		cmd.Run()
+		if err := cmd.Run(); err != nil {
+			log.Warn().Err(err).Send()
+		}
 
 		// print table
 		table.Print(os.Stdout)
