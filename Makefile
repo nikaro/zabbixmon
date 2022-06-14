@@ -14,7 +14,7 @@ all: build
 ## build: Build for the current target
 build:
 	@echo "Building..."
-	env CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build -mod vendor -o build/${APP}-${GOOS}-${GOARCH} ${APP}.go
+	env CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build -mod vendor -o build/${APP}-${GOOS}-${GOARCH} .
 
 .PHONY: build-all
 ## build-all: Build for all targets
@@ -41,7 +41,7 @@ uninstall:
 .PHONY: run
 ## run: Runs go run
 run:
-	go run -race ${APP}.go
+	go run -race .
 
 .PHONY: clean
 ## clean: Cleans the binary

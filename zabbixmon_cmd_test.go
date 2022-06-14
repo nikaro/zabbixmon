@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"os"
@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/markkurossi/tabulate"
-	"github.com/nikaro/zabbixmon/api"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 )
@@ -37,7 +36,7 @@ func TestSetLogLevelNotFound(t *testing.T) {
 }
 
 func TestBuildTableHeaders(t *testing.T) {
-	tab := buildTable([]api.Item{})
+	tab := buildTable([]Item{})
 	headers_strings := []string{"Host", "Status", "Description", "Ack", "URL"}
 	headers := lo.Map[*tabulate.Column, string](tab.Headers, func(x *tabulate.Column, _ int) string {
 		return x.Data.String()
@@ -48,9 +47,9 @@ func TestBuildTableHeaders(t *testing.T) {
 }
 
 func TestBuildTableRows(t *testing.T) {
-	item := api.Item{"myhost", "mystatus", "mydesc", true, "myurl"}
+	item := Item{"myhost", "mystatus", "mydesc", true, "myurl"}
 	item_strings := []string{"myhost", "mystatus", "mydesc", "true", "myurl"}
-	tab := buildTable([]api.Item{item})
+	tab := buildTable([]Item{item})
 	row := lo.Map[*tabulate.Column, string](tab.Rows[0].Columns, func(x *tabulate.Column, _ int) string {
 		return x.Data.String()
 	})

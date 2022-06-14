@@ -1,9 +1,13 @@
 package main
 
 import (
-	"github.com/nikaro/zabbixmon/cmd"
+	"fmt"
+	"os"
 )
 
 func main() {
-	cmd.Execute()
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }

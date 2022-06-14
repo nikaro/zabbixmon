@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"fmt"
@@ -21,9 +21,9 @@ type ZabbixMonConfig struct {
 	Grep        string
 }
 
-var Config *ZabbixMonConfig
+var config *ZabbixMonConfig
 
-func InitConfig() {
+func initConfig() {
 	viper.SetConfigName("config")
 
 	home, err := os.UserHomeDir()
@@ -68,7 +68,7 @@ func InitConfig() {
 	}
 
 	// update global config object
-	Config = &ZabbixMonConfig{
+	config = &ZabbixMonConfig{
 		ConfigFile:  viper.ConfigFileUsed(),
 		Server:      viper.GetString("server"),
 		Username:    viper.GetString("username"),

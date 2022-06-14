@@ -1,4 +1,4 @@
-package api
+package main
 
 import (
 	"fmt"
@@ -33,7 +33,7 @@ type Item struct {
 	Url         string `json:"url"`
 }
 
-func GetSession(server string, username string, password string) *zabbix.Session {
+func getSession(server string, username string, password string) *zabbix.Session {
 	// authenticate to zabbix server
 	zapi, err := zabbix.NewSession(
 		server+"/api_jsonrpc.php",
@@ -47,7 +47,7 @@ func GetSession(server string, username string, password string) *zabbix.Session
 	return zapi
 }
 
-func GetTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []Item, triggerItemsAck []Item) {
+func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []Item, triggerItemsAck []Item) {
 	server := zapi.URL[:strings.LastIndex(zapi.URL, "/")]
 
 	// query triggers with unresolved problems
@@ -98,7 +98,7 @@ func GetTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []
 	return triggerItemsUnack, triggerItemsAck
 }
 
-func GetHosts(zapi *zabbix.Session) (hostItemsUnavailable []Item, hostItemsUnknown []Item) {
+func getHosts(zapi *zabbix.Session) (hostItemsUnavailable []Item, hostItemsUnknown []Item) {
 	server := zapi.URL[:strings.LastIndex(zapi.URL, "/")]
 
 	// query hosts with problems
@@ -138,9 +138,9 @@ func GetHosts(zapi *zabbix.Session) (hostItemsUnavailable []Item, hostItemsUnkno
 	return hostItemsUnavailable, hostItemsUnknown
 }
 
-func GetItems(zapi *zabbix.Session, itemTypes []string, minSeverity string, grep string) (items []Item) {
+func getItems(zapi *zabbix.Session, itemTypes []string, minSeverity string, grep string) (items []Item) {
 	// get triggers
-	triggerItemsUnack, triggerItemsAck := GetTriggers(zapi, minSeverity)
+	triggerItemsUnack, triggerItemsAck := getTriggers(zapi, minSeverity)
 	if present := lo.Contains[string](itemTypes, "unack"); present {
 		items = append(items, triggerItemsUnack...)
 	}
@@ -149,7 +149,7 @@ func GetItems(zapi *zabbix.Session, itemTypes []string, minSeverity string, grep
 	}
 
 	// get hosts
-	hostItemsUnavailable, hostItemsUnknown := GetHosts(zapi)
+	hostItemsUnavailable, hostItemsUnknown := getHosts(zapi)
 	if present := lo.Contains[string](itemTypes, "down"); present {
 		items = append(items, hostItemsUnavailable...)
 	}

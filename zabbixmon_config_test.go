@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"os"
@@ -8,7 +8,7 @@ import (
 
 func TestInitConfigNotFound(t *testing.T) {
 	if os.Getenv("CONF_NOT_FOUND") == "1" {
-		InitConfig()
+		initConfig()
 	}
 	cmd := exec.Command(os.Args[0], "-test.run=TestInitConfigNotFound")
 	cmd.Env = append(os.Environ(), "HOME="+t.TempDir())

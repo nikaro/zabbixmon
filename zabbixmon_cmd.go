@@ -1,8 +1,7 @@
-package cmd
+package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -13,8 +12,6 @@ import (
 
 	"github.com/gen2brain/beeep"
 	"github.com/markkurossi/tabulate"
-	"github.com/nikaro/zabbixmon/api"
-	"github.com/nikaro/zabbixmon/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
@@ -26,13 +23,12 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "zabbixmon",
 	Short: "Zabbix Status Monitoring",
-	Long:  ``,
 	Run:   run,
 }
 
 // initialize command
 func init() {
-	cobra.OnInitialize(config.InitConfig)
+	cobra.OnInitialize(initConfig)
 
 	// set flags
 	rootCmd.Flags().StringP("server", "s", "", "zabbix server url")
@@ -74,7 +70,7 @@ func setLogLevel(logLevel string) {
 	if _, found := lo.Find[string](logLevelsKeys, func(i string) bool {
 		return i == logLevel
 	}); !found {
-		err := errors.New(fmt.Sprintf("unknown log level '%s', not in %v", logLevel, logLevelsKeys))
+		err := fmt.Errorf("unknown log level '%s', not in %v", logLevel, logLevelsKeys)
 		log.Error().Err(err).Send()
 		os.Exit(1)
 	}
@@ -84,14 +80,14 @@ func setLogLevel(logLevel string) {
 }
 
 // build items table
-func buildTable(items []api.Item) (table *tabulate.Tabulate) {
+func buildTable(items []Item) (table *tabulate.Tabulate) {
 	table = tabulate.New(tabulate.Unicode)
 	table.Header("Host")
 	table.Header("Status")
 	table.Header("Description")
 	table.Header("Ack")
 	table.Header("URL")
-	lo.ForEach[api.Item](items, func(x api.Item, _ int) {
+	lo.ForEach[Item](items, func(x Item, _ int) {
 		row := table.Row()
 		row.Column(x.Host)
 		row.Column(x.Status)
@@ -104,7 +100,7 @@ func buildTable(items []api.Item) (table *tabulate.Tabulate) {
 }
 
 // send notification for all items
-func notify(items []api.Item) {
+func notify(items []Item) {
 	for _, item := range items {
 		log.Debug().Str("type", "new_item").Str("item", fmt.Sprintf("%#v", item)).Send()
 		err := beeep.Notify(fmt.Sprintf("%s - %s", item.Status, item.Host), item.Description, "assets/information.png")
@@ -116,9 +112,9 @@ func notify(items []api.Item) {
 }
 
 func run(cmd *cobra.Command, args []string) {
-	var items []api.Item
-	var prevItems []api.Item
-	cfg := config.Config
+	var items []Item
+	var prevItems []Item
+	cfg := config
 
 	// set log level
 	logLevel := cfg.LogLevel
@@ -128,7 +124,7 @@ func run(cmd *cobra.Command, args []string) {
 	log.Debug().Str("type", "settings").Str("settings", fmt.Sprintf("%#v", cfg)).Send()
 
 	// zabbix auth
-	zapi := api.GetSession(cfg.Server, cfg.Username, cfg.Password)
+	zapi := getSession(cfg.Server, cfg.Username, cfg.Password)
 
 	// catch ctrl+c signal
 	c := make(chan os.Signal)
@@ -141,11 +137,11 @@ func run(cmd *cobra.Command, args []string) {
 	for {
 		// backup items to detect changes
 		if items != nil {
-			prevItems = append([]api.Item(nil), items...)
+			prevItems = append([]Item(nil), items...)
 		}
 
 		// fetch items
-		items = api.GetItems(zapi, cfg.ItemTypes, cfg.MinSeverity, cfg.Grep)
+		items = getItems(zapi, cfg.ItemTypes, cfg.MinSeverity, cfg.Grep)
 
 		// build table
 		table := buildTable(items)
@@ -172,20 +168,11 @@ func run(cmd *cobra.Command, args []string) {
 
 		// detect changes and send notification
 		if cfg.Notify && prevItems != nil {
-			newItems, _ := lo.Difference[api.Item](items, prevItems)
+			newItems, _ := lo.Difference[Item](items, prevItems)
 			notify(newItems)
 		}
 
 		// wait
 		time.Sleep(time.Duration(cfg.Refresh) * time.Second)
-	}
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
 	}
 }
