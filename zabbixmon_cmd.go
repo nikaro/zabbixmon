@@ -127,7 +127,7 @@ func run(cmd *cobra.Command, args []string) {
 	zapi := getSession(cfg.Server, cfg.Username, cfg.Password)
 
 	// catch ctrl+c signal
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c
