@@ -42,15 +42,9 @@ func init() {
 	rootCmd.Flags().StringP("grep", "g", "", "regexp to filter items on hostname")
 
 	// bind flag to config
-	viper.BindPFlag("server", rootCmd.Flags().Lookup("server"))
-	viper.BindPFlag("username", rootCmd.Flags().Lookup("username"))
-	viper.BindPFlag("password", rootCmd.Flags().Lookup("password"))
-	viper.BindPFlag("refresh", rootCmd.Flags().Lookup("refresh"))
-	viper.BindPFlag("notify", rootCmd.Flags().Lookup("notify"))
-	viper.BindPFlag("min-severity", rootCmd.Flags().Lookup("min-severity"))
-	viper.BindPFlag("item-types", rootCmd.Flags().Lookup("item-types"))
-	viper.BindPFlag("log-level", rootCmd.Flags().Lookup("log-level"))
-	viper.BindPFlag("grep", rootCmd.Flags().Lookup("grep"))
+	if err := viper.BindPFlags(rootCmd.Flags()); err != nil {
+		log.Warn().Err(err).Send()
+	}
 }
 
 // check and set global log level
