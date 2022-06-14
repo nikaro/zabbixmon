@@ -60,7 +60,7 @@ setup:
 .PHONY: lint
 ## lint: Runs linter on the project
 lint:
-	staticcheck .
+	golangci-lint run
 
 .PHONY: format
 ## format: Runs goimports on the project
