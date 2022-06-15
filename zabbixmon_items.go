@@ -11,18 +11,18 @@ import (
 )
 
 var triggerSeverity = map[string]int{
-	"unknown":     0,
-	"information": 1,
-	"warning":     2,
-	"average":     3,
-	"high":        4,
-	"critical":    5,
+	"unknown":     zabbix.TriggerSeverityNotClassified,
+	"information": zabbix.TriggerSeverityInformation,
+	"warning":     zabbix.TriggerSeverityWarning,
+	"average":     zabbix.TriggerSeverityAverage,
+	"high":        zabbix.TriggerSeverityHigh,
+	"critical":    zabbix.TriggerSeverityDisaster,
 }
 
 var hostAvalability = map[string]int{
-	"UNKNOWN":     0,
-	"AVAILABLE":   1,
-	"UNAVAILABLE": 2,
+	"UNKNOWN":     zabbix.HostInterfaceAvailabilityUnknown,
+	"AVAILABLE":   zabbix.HostInterfaceAvailabilityAvailable,
+	"UNAVAILABLE": zabbix.HostInterfaceAvailabilityUnavailable,
 }
 
 type zabbixmonItem struct {
