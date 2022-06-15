@@ -1,9 +1,223 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
+	"os/signal"
+	"runtime"
+	"syscall"
+	"time"
+
+	"github.com/gen2brain/beeep"
+	"github.com/markkurossi/tabulate"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"github.com/samber/lo"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
+
+var rootCmd = &cobra.Command{
+	Use:   "zabbixmon",
+	Short: "Zabbix Status Monitoring",
+	Run:   run,
+}
+
+type zabbixmonConfig struct {
+	ConfigFile  string
+	Server      string
+	Username    string
+	Password    string
+	Debug       bool
+	ItemTypes   []string
+	MinSeverity string
+	Refresh     int
+	Notify      bool
+	Grep        string
+}
+
+var config *zabbixmonConfig
+
+func init() {
+	cobra.OnInitialize(initConfig)
+
+	// set flags
+	rootCmd.Flags().StringP("server", "s", "", "zabbix server url")
+	rootCmd.Flags().StringP("username", "u", "", "zabbix username")
+	rootCmd.Flags().StringP("password", "p", "", "zabbix password")
+	rootCmd.Flags().IntP("refresh", "r", 0, "data refreshing interval")
+	rootCmd.Flags().BoolP("notify", "n", false, "enable notifications")
+	rootCmd.Flags().StringP("min-severity", "m", "", "minimum trigger severity")
+	rootCmd.Flags().StringSliceP("item-types", "i", nil, "items state types")
+	rootCmd.Flags().BoolP("debug", "d", false, "enable debug logs")
+	rootCmd.Flags().StringP("grep", "g", "", "regexp to filter items on hostname")
+
+	// bind flag to config
+	if err := viper.BindPFlags(rootCmd.Flags()); err != nil {
+		log.Warn().Err(err).Send()
+	}
+}
+
+func initConfig() {
+	viper.SetConfigName("config")
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Error().Err(err).Send()
+		os.Exit(1)
+	}
+
+	// search paths
+	viper.AddConfigPath("/etc/zabbixmon")
+	if os.Getenv("XDG_CONFIG_HOME") != "" {
+		viper.AddConfigPath("$XDG_CONFIG_HOME/zabbixmon")
+	}
+	viper.AddConfigPath(home + "/.config/zabbixmon")
+	viper.AddConfigPath(home + "/.zabbixmon")
+	viper.AddConfigPath(".")
+
+	// set defaults
+	viper.SetDefault("debug", false)
+	viper.SetDefault("item-types", []string{"down", "unack", "ack", "unknown"})
+	viper.SetDefault("min-severity", "average")
+	viper.SetDefault("refresh", 60)
+	viper.SetDefault("notify", false)
+	viper.SetDefault("grep", "")
+
+	// bind environment variables
+	viper.SetEnvPrefix("zxmon")
+	viper.AutomaticEnv()
+
+	// read config
+	if err := viper.ReadInConfig(); err != nil {
+		log.Error().Err(err).Send()
+		os.Exit(1)
+	}
+
+	// check mandatory values
+	for _, setting := range []string{"server", "username", "password"} {
+		if !viper.IsSet(setting) {
+			log.Error().Str("scope", "config").Msg(fmt.Sprintf("'%s' is not set", setting))
+			os.Exit(1)
+		}
+	}
+
+	// update global config object
+	config = &zabbixmonConfig{
+		ConfigFile:  viper.ConfigFileUsed(),
+		Server:      viper.GetString("server"),
+		Username:    viper.GetString("username"),
+		Password:    viper.GetString("password"),
+		Debug:       viper.GetBool("debug"),
+		ItemTypes:   viper.GetStringSlice("item-types"),
+		MinSeverity: viper.GetString("min-severity"),
+		Refresh:     viper.GetInt("refresh"),
+		Notify:      viper.GetBool("notify"),
+		Grep:        viper.GetString("grep"),
+	}
+}
+
+// build items table
+func buildTable(items []zabbixmonItem) (table *tabulate.Tabulate) {
+	table = tabulate.New(tabulate.Unicode)
+	table.Header("Host")
+	table.Header("Status")
+	table.Header("Description")
+	table.Header("Ack")
+	table.Header("URL")
+	lo.ForEach[zabbixmonItem](items, func(x zabbixmonItem, _ int) {
+		row := table.Row()
+		row.Column(x.Host)
+		row.Column(x.Status)
+		row.Column(x.Description)
+		row.Column(fmt.Sprintf("%t", x.Ack))
+		row.Column(x.Url)
+	})
+
+	return table
+}
+
+// send notification for all items
+func notify(items []zabbixmonItem) {
+	for _, item := range items {
+		log.Debug().Str("type", "new_item").Str("item", fmt.Sprintf("%#v", item)).Send()
+		err := beeep.Notify(fmt.Sprintf("%s - %s", item.Status, item.Host), item.Description, "assets/information.png")
+		if err != nil {
+			log.Error().Err(err).Send()
+			os.Exit(1)
+		}
+	}
+}
+
+func run(cmd *cobra.Command, args []string) {
+	var items []zabbixmonItem
+	var prevItems []zabbixmonItem
+	cfg := config
+
+	// set log level
+	logLevel := lo.Ternary[zerolog.Level](cfg.Debug, zerolog.DebugLevel, zerolog.InfoLevel)
+	zerolog.SetGlobalLevel(logLevel)
+
+	// dump settings in logs
+	log.Debug().Str("type", "settings").Str("settings", fmt.Sprintf("%#v", cfg)).Send()
+
+	// zabbix auth
+	zapi := getSession(cfg.Server, cfg.Username, cfg.Password)
+
+	// catch ctrl+c signal
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		os.Exit(1)
+	}()
+
+	for {
+		// backup items to detect changes
+		if items != nil {
+			prevItems = append([]zabbixmonItem(nil), items...)
+		}
+
+		// fetch items
+		items = getItems(zapi, cfg.ItemTypes, cfg.MinSeverity, cfg.Grep)
+
+		// build table
+		table := buildTable(items)
+
+		// dump json if output is redirected
+		o, _ := os.Stdout.Stat()
+		if (o.Mode() & os.ModeCharDevice) != os.ModeCharDevice {
+			if data, err := json.Marshal(items); err != nil {
+				log.Error().Err(err).Send()
+				os.Exit(1)
+			} else {
+				fmt.Println(string(data))
+				return
+			}
+		}
+
+		// clear terminal
+		cmd := lo.Ternary[*exec.Cmd](runtime.GOOS == "windows", exec.Command("cmd", "/c", "cls"), exec.Command("clear"))
+		cmd.Stdout = os.Stdout
+		if err := cmd.Run(); err != nil {
+			log.Warn().Err(err).Send()
+		}
+
+		// print table
+		table.Print(os.Stdout)
+
+		// detect changes and send notification
+		if cfg.Notify && prevItems != nil {
+			newItems, _ := lo.Difference[zabbixmonItem](items, prevItems)
+			notify(newItems)
+		}
+
+		// wait
+		time.Sleep(time.Duration(cfg.Refresh) * time.Second)
+	}
+}
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {

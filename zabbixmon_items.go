@@ -25,7 +25,7 @@ var hostAvalability = map[string]int{
 	"UNAVAILABLE": 2,
 }
 
-type Item struct {
+type zabbixmonItem struct {
 	Host        string `json:"host"`
 	Status      string `json:"status"`
 	Description string `json:"desc"`
@@ -47,7 +47,7 @@ func getSession(server string, username string, password string) *zabbix.Session
 	return zapi
 }
 
-func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []Item, triggerItemsAck []Item) {
+func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []zabbixmonItem, triggerItemsAck []zabbixmonItem) {
 	server := zapi.URL[:strings.LastIndex(zapi.URL, "/")]
 
 	// query triggers with unresolved problems
@@ -76,8 +76,8 @@ func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []
 
 	// tranform triggers into structured items
 	severity := lo.Invert[string, int](triggerSeverity)
-	triggerItemsAll := lo.Map[zabbix.Trigger, Item](triggers, func(x zabbix.Trigger, _ int) Item {
-		return Item{
+	triggerItemsAll := lo.Map[zabbix.Trigger, zabbixmonItem](triggers, func(x zabbix.Trigger, _ int) zabbixmonItem {
+		return zabbixmonItem{
 			Host:        x.Hosts[0].Hostname,
 			Status:      strings.ToUpper(severity[x.Severity]),
 			Description: x.Description,
@@ -88,17 +88,17 @@ func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []
 	log.Debug().Str("type", "triggers").Str("scope", "all").Str("items", fmt.Sprintf("%#v", triggerItemsAll)).Send()
 
 	// filter unacknowledged items
-	triggerItemsUnack = lo.Filter[Item](triggerItemsAll, func(x Item, _ int) bool { return !x.Ack })
+	triggerItemsUnack = lo.Filter[zabbixmonItem](triggerItemsAll, func(x zabbixmonItem, _ int) bool { return !x.Ack })
 	log.Debug().Str("type", "triggers").Str("scope", "unack").Str("items", fmt.Sprintf("%#v", triggerItemsUnack)).Send()
 
 	// filter acknowledged items
-	triggerItemsAck = lo.Filter[Item](triggerItemsAll, func(x Item, _ int) bool { return x.Ack })
+	triggerItemsAck = lo.Filter[zabbixmonItem](triggerItemsAll, func(x zabbixmonItem, _ int) bool { return x.Ack })
 	log.Debug().Str("type", "triggers").Str("scope", "ack").Str("items", fmt.Sprintf("%#v", triggerItemsAck)).Send()
 
 	return triggerItemsUnack, triggerItemsAck
 }
 
-func getHosts(zapi *zabbix.Session) (hostItemsUnavailable []Item, hostItemsUnknown []Item) {
+func getHosts(zapi *zabbix.Session) (hostItemsUnavailable []zabbixmonItem, hostItemsUnknown []zabbixmonItem) {
 	server := zapi.URL[:strings.LastIndex(zapi.URL, "/")]
 
 	// query hosts with problems
@@ -116,8 +116,8 @@ func getHosts(zapi *zabbix.Session) (hostItemsUnavailable []Item, hostItemsUnkno
 
 	// tranform hosts into structured items
 	availability := lo.Invert[string, int](hostAvalability)
-	hostItemsAll := lo.Map[zabbix.Host, Item](hosts, func(x zabbix.Host, _ int) Item {
-		return Item{
+	hostItemsAll := lo.Map[zabbix.Host, zabbixmonItem](hosts, func(x zabbix.Host, _ int) zabbixmonItem {
+		return zabbixmonItem{
 			Host:        x.Hostname,
 			Status:      availability[x.Available],
 			Description: fmt.Sprintf("Host in %s state", availability[x.Available]),
@@ -128,17 +128,17 @@ func getHosts(zapi *zabbix.Session) (hostItemsUnavailable []Item, hostItemsUnkno
 	log.Debug().Str("type", "hosts").Str("scope", "all").Str("items", fmt.Sprintf("%#v", hostItemsAll)).Send()
 
 	// filter unavailable items
-	hostItemsUnavailable = lo.Filter[Item](hostItemsAll, func(x Item, _ int) bool { return x.Status == "UNAVAILABLE" })
+	hostItemsUnavailable = lo.Filter[zabbixmonItem](hostItemsAll, func(x zabbixmonItem, _ int) bool { return x.Status == "UNAVAILABLE" })
 	log.Debug().Str("type", "hosts").Str("scope", "unavailable").Str("items", fmt.Sprintf("%#v", hostItemsUnavailable)).Send()
 
 	// filter unknown items
-	hostItemsUnknown = lo.Filter[Item](hostItemsAll, func(x Item, _ int) bool { return x.Status == "UNKNOWN" })
+	hostItemsUnknown = lo.Filter[zabbixmonItem](hostItemsAll, func(x zabbixmonItem, _ int) bool { return x.Status == "UNKNOWN" })
 	log.Debug().Str("type", "hosts").Str("scope", "unknown").Str("items", fmt.Sprintf("%#v", hostItemsUnknown)).Send()
 
 	return hostItemsUnavailable, hostItemsUnknown
 }
 
-func getItems(zapi *zabbix.Session, itemTypes []string, minSeverity string, grep string) (items []Item) {
+func getItems(zapi *zabbix.Session, itemTypes []string, minSeverity string, grep string) (items []zabbixmonItem) {
 	// get triggers
 	triggerItemsUnack, triggerItemsAck := getTriggers(zapi, minSeverity)
 	if present := lo.Contains[string](itemTypes, "unack"); present {
@@ -160,7 +160,7 @@ func getItems(zapi *zabbix.Session, itemTypes []string, minSeverity string, grep
 	// filter items on hostnames
 	if grep != "" {
 		hostRegexp := regexp.MustCompile(grep)
-		items = lo.Filter[Item](items, func(x Item, _ int) bool {
+		items = lo.Filter[zabbixmonItem](items, func(x zabbixmonItem, _ int) bool {
 			return hostRegexp.MatchString(x.Host)
 		})
 	}
