@@ -4,14 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
-	"os/signal"
-	"runtime"
-	"syscall"
 	"time"
 
 	"github.com/gen2brain/beeep"
-	"github.com/markkurossi/tabulate"
+	ui "github.com/gizak/termui/v3"
+	"github.com/gizak/termui/v3/widgets"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
@@ -119,22 +116,25 @@ func initConfig() {
 	}
 }
 
-// build items table
-func buildTable(items []zabbixmonItem) (table *tabulate.Tabulate) {
-	table = tabulate.New(tabulate.Unicode)
-	table.Header("Host")
-	table.Header("Status")
-	table.Header("Description")
-	table.Header("Ack")
-	table.Header("URL")
+// bauild items table
+func buildTable(items []zabbixmonItem) (table *widgets.Table) {
+	table = widgets.NewTable()
+	table.Rows = [][]string{
+		[]string{"Host", "Status", "Description", "Ack", "URL"},
+	}
 	lo.ForEach[zabbixmonItem](items, func(x zabbixmonItem, _ int) {
-		row := table.Row()
-		row.Column(x.Host)
-		row.Column(x.Status)
-		row.Column(x.Description)
-		row.Column(fmt.Sprintf("%t", x.Ack))
-		row.Column(x.Url)
+		table.Rows = append(table.Rows, []string{
+			x.Host,
+			x.Status,
+			x.Description,
+			fmt.Sprintf("%t", x.Ack),
+			x.Url,
+		})
 	})
+	table.TextStyle = ui.NewStyle(ui.ColorClear)
+	table.BorderStyle = ui.NewStyle(ui.ColorClear)
+	x, y := ui.TerminalDimensions()
+	table.SetRect(0, 0, x, y)
 
 	return table
 }
@@ -166,12 +166,22 @@ func run(cmd *cobra.Command, args []string) {
 	// zabbix auth
 	zapi := getSession(cfg.Server, cfg.Username, cfg.Password)
 
-	// catch ctrl+c signal
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
+	// init ui
+	if err := ui.Init(); err != nil {
+		log.Error().Err(err).Send()
 		os.Exit(1)
+	}
+	defer ui.Close()
+
+	// catch exit
+	uiEvents := ui.PollEvents()
+	go func() {
+		e := <-uiEvents
+		switch e.ID {
+		case "q", "<C-c>":
+			ui.Close()
+			os.Exit(0)
+		}
 	}()
 
 	for {
@@ -198,15 +208,8 @@ func run(cmd *cobra.Command, args []string) {
 			}
 		}
 
-		// clear terminal
-		cmd := lo.Ternary[*exec.Cmd](runtime.GOOS == "windows", exec.Command("cmd", "/c", "cls"), exec.Command("clear"))
-		cmd.Stdout = os.Stdout
-		if err := cmd.Run(); err != nil {
-			log.Warn().Err(err).Send()
-		}
-
-		// print table
-		table.Print(os.Stdout)
+		// render table
+		ui.Render(table)
 
 		// detect changes and send notification
 		if cfg.Notify && prevItems != nil {
