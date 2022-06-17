@@ -9,6 +9,8 @@ import (
 	"github.com/gen2brain/beeep"
 	ui "github.com/gizak/termui/v3"
 	"github.com/gizak/termui/v3/widgets"
+
+	// TODO: replace by https://pkg.go.dev/github.com/bndr/gotabulate
 	"github.com/markkurossi/tabulate"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -117,15 +119,11 @@ func initConfig() {
 	}
 }
 
-// build items table
-func buildTable(items []zabbixmonItem) (table *tabulate.Tabulate) {
-	table = tabulate.New(tabulate.Unicode)
-	table.Header("Host")
-	table.Header("Status")
-	table.Header("Description")
-	table.Header("Ack")
-	table.Header("URL")
-	lo.ForEach[zabbixmonItem](items, func(x zabbixmonItem, _ int) {
+// update items table
+func updateTable(table *tabulate.Tabulate, items []zabbixmonItem) *tabulate.Tabulate {
+	table = table.Clone()
+
+	lo.ForEach(items, func(x zabbixmonItem, _ int) {
 		row := table.Row()
 		row.Column(x.Host)
 		row.Column(x.Status)
@@ -155,7 +153,7 @@ func run(cmd *cobra.Command, args []string) {
 	cfg := config
 
 	// set log level
-	logLevel := lo.Ternary[zerolog.Level](cfg.Debug, zerolog.DebugLevel, zerolog.InfoLevel)
+	logLevel := lo.Ternary(cfg.Debug, zerolog.DebugLevel, zerolog.InfoLevel)
 	zerolog.SetGlobalLevel(logLevel)
 
 	// dump settings in logs
@@ -165,8 +163,8 @@ func run(cmd *cobra.Command, args []string) {
 	zapi := getSession(cfg.Server, cfg.Username, cfg.Password)
 
 	// catch exit
+	uiEvents := ui.PollEvents()
 	go func() {
-		uiEvents := ui.PollEvents()
 		e := <-uiEvents
 		switch e.ID {
 		case "q", "<C-c>":
@@ -182,6 +180,14 @@ func run(cmd *cobra.Command, args []string) {
 	}
 	defer ui.Close()
 
+	// build table
+	table := tabulate.New(tabulate.Unicode)
+	table.Header("Host")
+	table.Header("Status")
+	table.Header("Description")
+	table.Header("Ack")
+	table.Header("URL")
+
 	for {
 		// backup items to detect changes
 		if items != nil {
@@ -191,8 +197,8 @@ func run(cmd *cobra.Command, args []string) {
 		// fetch items
 		items = getItems(zapi, cfg.ItemTypes, cfg.MinSeverity, cfg.Grep)
 
-		// build table
-		table := buildTable(items)
+		// update table data
+		table = updateTable(table, items)
 
 		// dump json if output is redirected
 		o, _ := os.Stdout.Stat()
@@ -217,7 +223,7 @@ func run(cmd *cobra.Command, args []string) {
 
 		// detect changes and send notification
 		if cfg.Notify && prevItems != nil {
-			newItems, _ := lo.Difference[zabbixmonItem](items, prevItems)
+			newItems, _ := lo.Difference(items, prevItems)
 			notify(newItems)
 		}
 
