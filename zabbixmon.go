@@ -4,13 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
-	"os/signal"
-	"runtime"
-	"syscall"
 	"time"
 
 	"github.com/gen2brain/beeep"
+	ui "github.com/gizak/termui/v3"
+	"github.com/gizak/termui/v3/widgets"
 	"github.com/markkurossi/tabulate"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -166,13 +164,23 @@ func run(cmd *cobra.Command, args []string) {
 	// zabbix auth
 	zapi := getSession(cfg.Server, cfg.Username, cfg.Password)
 
-	// catch ctrl+c signal
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	// catch exit
 	go func() {
-		<-c
-		os.Exit(1)
+		uiEvents := ui.PollEvents()
+		e := <-uiEvents
+		switch e.ID {
+		case "q", "<C-c>":
+			ui.Close()
+			os.Exit(0)
+		}
 	}()
+
+	// init ui
+	if err := ui.Init(); err != nil {
+		log.Error().Err(err).Send()
+		os.Exit(1)
+	}
+	defer ui.Close()
 
 	for {
 		// backup items to detect changes
@@ -198,15 +206,14 @@ func run(cmd *cobra.Command, args []string) {
 			}
 		}
 
-		// clear terminal
-		cmd := lo.Ternary[*exec.Cmd](runtime.GOOS == "windows", exec.Command("cmd", "/c", "cls"), exec.Command("clear"))
-		cmd.Stdout = os.Stdout
-		if err := cmd.Run(); err != nil {
-			log.Warn().Err(err).Send()
-		}
-
 		// print table
-		table.Print(os.Stdout)
+		x, y := ui.TerminalDimensions()
+		p := widgets.NewParagraph()
+		p.Text = table.String()
+		p.TextStyle = ui.NewStyle(ui.ColorClear)
+		p.Border = false
+		p.SetRect(0, 0, x, y)
+		ui.Render(p)
 
 		// detect changes and send notification
 		if cfg.Notify && prevItems != nil {
