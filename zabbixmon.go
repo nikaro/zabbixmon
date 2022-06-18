@@ -123,14 +123,14 @@ func initConfig() {
 func updateTable(table *tabulate.Tabulate, items []zabbixmonItem) *tabulate.Tabulate {
 	table = table.Clone()
 
-	lo.ForEach(items, func(x zabbixmonItem, _ int) {
+	for _, item := range items {
 		row := table.Row()
-		row.Column(x.Host)
-		row.Column(x.Status)
-		row.Column(x.Description)
-		row.Column(fmt.Sprintf("%t", x.Ack))
-		row.Column(x.Url)
-	})
+		row.Column(item.Host)
+		row.Column(item.Status)
+		row.Column(item.Description)
+		row.Column(fmt.Sprintf("%t", item.Ack))
+		row.Column(item.Url)
+	}
 
 	return table
 }
@@ -147,38 +147,25 @@ func notify(items []zabbixmonItem) {
 	}
 }
 
-func run(cmd *cobra.Command, args []string) {
+func dumpJsonIfRedirect(items *[]zabbixmonItem) {
+	o, _ := os.Stdout.Stat()
+	if (o.Mode() & os.ModeCharDevice) != os.ModeCharDevice {
+		if data, err := json.Marshal(items); err != nil {
+			log.Error().Err(err).Send()
+			os.Exit(1)
+		} else {
+			fmt.Println(string(data))
+			os.Exit(0)
+		}
+	}
+}
+
+func runLoop(cfg *zabbixmonConfig) {
 	var items []zabbixmonItem
 	var prevItems []zabbixmonItem
-	cfg := config
-
-	// set log level
-	logLevel := lo.Ternary(cfg.Debug, zerolog.DebugLevel, zerolog.InfoLevel)
-	zerolog.SetGlobalLevel(logLevel)
-
-	// dump settings in logs
-	log.Debug().Str("type", "settings").Str("settings", fmt.Sprintf("%#v", cfg)).Send()
 
 	// zabbix auth
 	zapi := getSession(cfg.Server, cfg.Username, cfg.Password)
-
-	// catch exit
-	uiEvents := ui.PollEvents()
-	go func() {
-		e := <-uiEvents
-		switch e.ID {
-		case "q", "<C-c>":
-			ui.Close()
-			os.Exit(0)
-		}
-	}()
-
-	// init ui
-	if err := ui.Init(); err != nil {
-		log.Error().Err(err).Send()
-		os.Exit(1)
-	}
-	defer ui.Close()
 
 	// build table
 	table := tabulate.New(tabulate.Unicode)
@@ -187,6 +174,11 @@ func run(cmd *cobra.Command, args []string) {
 	table.Header("Description")
 	table.Header("Ack")
 	table.Header("URL")
+
+	// setup ui
+	p := widgets.NewParagraph()
+	p.TextStyle = ui.NewStyle(ui.ColorClear)
+	p.Border = false
 
 	for {
 		// backup items to detect changes
@@ -201,23 +193,11 @@ func run(cmd *cobra.Command, args []string) {
 		table = updateTable(table, items)
 
 		// dump json if output is redirected
-		o, _ := os.Stdout.Stat()
-		if (o.Mode() & os.ModeCharDevice) != os.ModeCharDevice {
-			if data, err := json.Marshal(items); err != nil {
-				log.Error().Err(err).Send()
-				os.Exit(1)
-			} else {
-				fmt.Println(string(data))
-				return
-			}
-		}
+		dumpJsonIfRedirect(&items)
 
-		// print table
+		// update ui
 		x, y := ui.TerminalDimensions()
-		p := widgets.NewParagraph()
 		p.Text = table.String()
-		p.TextStyle = ui.NewStyle(ui.ColorClear)
-		p.Border = false
 		p.SetRect(0, 0, x, y)
 		ui.Render(p)
 
@@ -232,9 +212,40 @@ func run(cmd *cobra.Command, args []string) {
 	}
 }
 
+func run(cmd *cobra.Command, args []string) {
+	cfg := config
+
+	// set log level
+	logLevel := lo.Ternary(cfg.Debug, zerolog.DebugLevel, zerolog.InfoLevel)
+	zerolog.SetGlobalLevel(logLevel)
+
+	// dump settings in logs
+	log.Debug().Str("type", "settings").Str("settings", fmt.Sprintf("%#v", cfg)).Send()
+
+	// init ui
+	if err := ui.Init(); err != nil {
+		log.Error().Err(err).Send()
+		os.Exit(1)
+	}
+	defer ui.Close()
+
+	// run loop in a goroutine
+	go runLoop(cfg)
+
+	// catch exit
+	uiEvents := ui.PollEvents()
+	for {
+		e := <-uiEvents
+		switch e.ID {
+		case "q", "<C-c>":
+			return
+		}
+	}
+}
+
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		log.Error().Err(err).Send()
 		os.Exit(1)
 	}
 }
