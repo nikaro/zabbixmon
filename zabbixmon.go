@@ -7,11 +7,7 @@ import (
 	"time"
 
 	"github.com/gen2brain/beeep"
-	ui "github.com/gizak/termui/v3"
-	"github.com/gizak/termui/v3/widgets"
-
-	// TODO: replace by https://pkg.go.dev/github.com/bndr/gotabulate
-	"github.com/markkurossi/tabulate"
+	"github.com/pterm/pterm"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
@@ -120,16 +116,10 @@ func initConfig() {
 }
 
 // update items table
-func updateTable(table *tabulate.Tabulate, items []zabbixmonItem) *tabulate.Tabulate {
-	table = table.Clone()
-
+func updateTable(items []zabbixmonItem) pterm.TableData {
+	table := pterm.TableData{{"Host", "Status", "Description", "Ack", "URL"}}
 	for _, item := range items {
-		row := table.Row()
-		row.Column(item.Host)
-		row.Column(item.Status)
-		row.Column(item.Description)
-		row.Column(fmt.Sprintf("%t", item.Ack))
-		row.Column(item.Url)
+		table = append(table, []string{item.Host, item.Status, item.Description, fmt.Sprintf("%t", item.Ack), item.Url})
 	}
 
 	return table
@@ -147,7 +137,7 @@ func notify(items []zabbixmonItem) {
 	}
 }
 
-func dumpJsonIfRedirect(items *[]zabbixmonItem) {
+func dumpJsonIfRedirect(items []zabbixmonItem) {
 	o, _ := os.Stdout.Stat()
 	if (o.Mode() & os.ModeCharDevice) != os.ModeCharDevice {
 		if data, err := json.Marshal(items); err != nil {
@@ -157,58 +147,6 @@ func dumpJsonIfRedirect(items *[]zabbixmonItem) {
 			fmt.Println(string(data))
 			os.Exit(0)
 		}
-	}
-}
-
-func runLoop(cfg *zabbixmonConfig) {
-	var items []zabbixmonItem
-	var prevItems []zabbixmonItem
-
-	// zabbix auth
-	zapi := getSession(cfg.Server, cfg.Username, cfg.Password)
-
-	// build table
-	table := tabulate.New(tabulate.Unicode)
-	table.Header("Host")
-	table.Header("Status")
-	table.Header("Description")
-	table.Header("Ack")
-	table.Header("URL")
-
-	// setup ui
-	p := widgets.NewParagraph()
-	p.TextStyle = ui.NewStyle(ui.ColorClear)
-	p.Border = false
-
-	for {
-		// backup items to detect changes
-		if items != nil {
-			prevItems = append([]zabbixmonItem(nil), items...)
-		}
-
-		// fetch items
-		items = getItems(zapi, cfg.ItemTypes, cfg.MinSeverity, cfg.Grep)
-
-		// update table data
-		table = updateTable(table, items)
-
-		// dump json if output is redirected
-		dumpJsonIfRedirect(&items)
-
-		// update ui
-		x, y := ui.TerminalDimensions()
-		p.Text = table.String()
-		p.SetRect(0, 0, x, y)
-		ui.Render(p)
-
-		// detect changes and send notification
-		if cfg.Notify && prevItems != nil {
-			newItems, _ := lo.Difference(items, prevItems)
-			notify(newItems)
-		}
-
-		// wait
-		time.Sleep(time.Duration(cfg.Refresh) * time.Second)
 	}
 }
 
@@ -222,24 +160,46 @@ func run(cmd *cobra.Command, args []string) {
 	// dump settings in logs
 	log.Debug().Str("type", "settings").Str("settings", fmt.Sprintf("%#v", cfg)).Send()
 
-	// init ui
-	if err := ui.Init(); err != nil {
-		log.Error().Err(err).Send()
-		os.Exit(1)
-	}
-	defer ui.Close()
+	var items []zabbixmonItem
+	var prevItems []zabbixmonItem
 
-	// run loop in a goroutine
-	go runLoop(cfg)
+	// zabbix auth
+	zapi := getSession(cfg.Server, cfg.Username, cfg.Password)
 
-	// catch exit
-	uiEvents := ui.PollEvents()
+	// dump json if output is redirected
+	dumpJsonIfRedirect(getItems(zapi, cfg.ItemTypes, cfg.MinSeverity, cfg.Grep))
+
+	// setup ui
+	area, _ := pterm.DefaultArea.Start()
+
 	for {
-		e := <-uiEvents
-		switch e.ID {
-		case "q", "<C-c>":
-			return
+		// backup items to detect changes
+		if items != nil {
+			prevItems = append([]zabbixmonItem(nil), items...)
 		}
+
+		// fetch items
+		items = getItems(zapi, cfg.ItemTypes, cfg.MinSeverity, cfg.Grep)
+
+		// update table data
+		table := updateTable(items)
+
+		// update ui
+		data, err := pterm.DefaultTable.WithHasHeader().WithData(table).Srender()
+		if err != nil {
+			log.Error().Err(err).Str("scope", "rendering table").Send()
+			os.Exit(1)
+		}
+		area.Update(data)
+
+		// detect changes and send notification
+		if cfg.Notify && prevItems != nil {
+			newItems, _ := lo.Difference(items, prevItems)
+			notify(newItems)
+		}
+
+		// wait
+		time.Sleep(time.Duration(cfg.Refresh) * time.Second)
 	}
 }
 
