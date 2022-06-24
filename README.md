@@ -29,15 +29,15 @@ Usage:
   zabbixmon [flags]
 
 Flags:
+  -d, --debug                 enable debug logs
+  -g, --grep string           regexp to filter items on hostname
   -h, --help                  help for zabbixmon
   -i, --item-types strings    items state types
-  -l, --log-level string      logging level
   -m, --min-severity string   minimum trigger severity
   -n, --notify                enable notifications
   -p, --password string       zabbix password
   -r, --refresh int           data refreshing interval
   -s, --server string         zabbix server url
-  -u, --username string       zabbix username
 ```
 
 ## Configuration
