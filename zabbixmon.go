@@ -129,9 +129,8 @@ func updateTable(items []zabbixmonItem) pterm.TableData {
 func notify(items []zabbixmonItem) {
 	for _, item := range items {
 		log.Debug().Str("type", "new_item").Str("item", fmt.Sprintf("%#v", item)).Send()
-		err := beeep.Notify(fmt.Sprintf("%s - %s", item.Status, item.Host), item.Description, "assets/information.png")
-		if err != nil {
-			log.Error().Err(err).Send()
+		if err := beeep.Notify(fmt.Sprintf("%s - %s", item.Status, item.Host), item.Description, "assets/information.png"); err != nil {
+			log.Error().Err(err).Str("scope", "sending notification").Send()
 			os.Exit(1)
 		}
 	}
@@ -141,7 +140,7 @@ func dumpJsonIfRedirect(items []zabbixmonItem) {
 	o, _ := os.Stdout.Stat()
 	if (o.Mode() & os.ModeCharDevice) != os.ModeCharDevice {
 		if data, err := json.Marshal(items); err != nil {
-			log.Error().Err(err).Send()
+			log.Error().Err(err).Str("scope", "dumping json").Send()
 			os.Exit(1)
 		} else {
 			fmt.Println(string(data))
@@ -205,7 +204,7 @@ func run(cmd *cobra.Command, args []string) {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Error().Err(err).Send()
+		log.Error().Err(err).Str("scope", "command execution").Send()
 		os.Exit(1)
 	}
 }
