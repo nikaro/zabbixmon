@@ -2,6 +2,12 @@
 ## [Unreleased]
 
 
+<a name="v0.3.4"></a>
+## [v0.3.4] - 2022-06-24
+### Code Refactoring
+- use a more simple tui framework
+
+
 <a name="v0.3.3"></a>
 ## [v0.3.3] - 2022-06-19
 ### Code Refactoring
@@ -48,7 +54,8 @@
 <a name="v0.1.0"></a>
 ## v0.1.0 - 2022-06-06
 
-[Unreleased]: https://github.com/nikaro/zabbixmon/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/nikaro/zabbixmon/compare/v0.3.4...HEAD
+[v0.3.4]: https://github.com/nikaro/zabbixmon/compare/v0.3.3...v0.3.4
 [v0.3.3]: https://github.com/nikaro/zabbixmon/compare/v0.3.2...v0.3.3
 [v0.3.2]: https://github.com/nikaro/zabbixmon/compare/v0.3.1...v0.3.2
 [v0.3.1]: https://github.com/nikaro/zabbixmon/compare/v0.3.0...v0.3.1
