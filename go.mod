@@ -7,7 +7,7 @@ require (
 	github.com/gen2brain/beeep v0.0.0-20220518085355-d7852edf42fc
 	github.com/pterm/pterm v0.12.42
 	github.com/rs/zerolog v1.27.0
-	github.com/samber/lo v1.21.0
+	github.com/samber/lo v1.24.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.12.0
 )
