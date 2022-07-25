@@ -1395,6 +1395,11 @@ import (
 
 func main() {
 	// Create and start a fork of the default spinner.
+	spinnerInfo, _ := pterm.DefaultSpinner.Start("Some informational action...")
+	time.Sleep(time.Second * 2) // Simulate 3 seconds of processing something.
+	spinnerInfo.Info()          // Resolve spinner with error message.
+
+	// Create and start a fork of the default spinner.
 	spinnerSuccess, _ := pterm.DefaultSpinner.Start("Doing something important... (will succeed)")
 	time.Sleep(time.Second * 2) // Simulate 3 seconds of processing something.
 	spinnerSuccess.Success()    // Resolve spinner with success message.
@@ -1408,6 +1413,19 @@ func main() {
 	spinnerFail, _ := pterm.DefaultSpinner.Start("Doing something important... (will fail)")
 	time.Sleep(time.Second * 2) // Simulate 3 seconds of processing something.
 	spinnerFail.Fail()          // Resolve spinner with error message.
+
+	// Create and start a fork of the default spinner.
+	spinnerNochange, _ := pterm.DefaultSpinner.Start("Checking something important... (will result in no change)")
+	// Replace the InfoPrinter with a custom "NOCHG" one
+	spinnerNochange.InfoPrinter = &pterm.PrefixPrinter{
+		MessageStyle: &pterm.Style{pterm.FgLightBlue},
+		Prefix: pterm.Prefix{
+			Style: &pterm.Style{pterm.FgBlack, pterm.BgLightBlue},
+			Text:  " NOCHG ",
+		},
+	}
+	time.Sleep(time.Second * 2)                     // Simulate 3 seconds of processing something.
+	spinnerNochange.Info("No change were required") // Resolve spinner with error message.
 
 	// Create and start a fork of the default spinner.
 	spinnerLiveText, _ := pterm.DefaultSpinner.Start("Doing a lot of stuff...")
@@ -1467,10 +1485,10 @@ func main() {
 	// Create a fork of the default table, fill it with data and print it.
 	// Data can also be generated and inserted later.
 	pterm.DefaultTable.WithHasHeader().WithData(pterm.TableData{
-		{"Firstname", "Lastname", "Email"},
-		{"Paul", "Dean", "nisi.dictum.augue@velitAliquam.co.uk"},
-		{"Callie", "Mckay", "egestas.nunc.sed@est.com"},
-		{"Libby", "Camacho", "aliquet.lobortis@semper.com"},
+		{"Firstname", "Lastname", "Email", "Note"},
+		{"Paul", "Dean", "nisi.dictum.augue@velitAliquam.co.uk", ""},
+		{"Callie", "Mckay", "egestas.nunc.sed@est.com", "这是一个测试, haha!"},
+		{"Libby", "Camacho", "aliquet.lobortis@semper.com", "just a test, hey!"},
 	}).Render()
 
 	pterm.Println() // Blank line
@@ -1481,6 +1499,7 @@ func main() {
 		{"Paul", "Dean", "nisi.dictum.augue@velitAliquam.co.uk"},
 		{"Callie", "Mckay", "egestas.nunc.sed@est.com"},
 		{"Libby", "Camacho", "aliquet.lobortis@semper.com"},
+		{"张", "小宝", "zhang@example.com"},
 	}).WithRightAlignment().Render()
 }
 
