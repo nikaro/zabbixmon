@@ -72,7 +72,7 @@ github.com/pelletier/go-toml/v2
 github.com/pelletier/go-toml/v2/internal/ast
 github.com/pelletier/go-toml/v2/internal/danger
 github.com/pelletier/go-toml/v2/internal/tracker
-# github.com/pterm/pterm v0.12.44
+# github.com/pterm/pterm v0.12.45
 ## explicit; go 1.15
 github.com/pterm/pterm
 github.com/pterm/pterm/internal
