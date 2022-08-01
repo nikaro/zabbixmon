@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/cavaliercoder/go-zabbix v0.0.0-20220606012333-8601f92dd2eb
 	github.com/gen2brain/beeep v0.0.0-20220518085355-d7852edf42fc
-	github.com/pterm/pterm v0.12.44
+	github.com/pterm/pterm v0.12.45
 	github.com/rs/zerolog v1.27.0
 	github.com/samber/lo v1.26.0
 	github.com/spf13/cobra v1.5.0
