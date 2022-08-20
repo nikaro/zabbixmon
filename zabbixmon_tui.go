@@ -44,7 +44,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "r":
 			m.prevItems = append([]zabbixmonItem(nil), m.items...)
 			m.items = getItems(m.zapi, config.ItemTypes, config.MinSeverity, config.Grep)
+			cursor := m.table.Cursor()
 			m.table = updateTable(m.items)
+			m.table.SetCursor(cursor)
 			m.refresh = config.Refresh
 			notify(m.items, m.prevItems)
 
@@ -58,7 +60,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.refresh <= 0 {
 			m.prevItems = append([]zabbixmonItem(nil), m.items...)
 			m.items = getItems(m.zapi, config.ItemTypes, config.MinSeverity, config.Grep)
+			cursor := m.table.Cursor()
 			m.table = updateTable(m.items)
+			m.table.SetCursor(cursor)
 			m.refresh = config.Refresh
 			notify(m.items, m.prevItems)
 		}
