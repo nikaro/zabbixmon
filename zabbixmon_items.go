@@ -29,6 +29,7 @@ type zabbixmonItem struct {
 	Host        string `json:"host"`
 	Status      string `json:"status"`
 	Description string `json:"desc"`
+	Time        string `json:"time"`
 	Ack         bool   `json:"ack"`
 	Url         string `json:"url"`
 }
@@ -81,6 +82,7 @@ func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []
 			Host:        x.Hosts[0].Hostname,
 			Status:      strings.ToUpper(severity[x.Severity]),
 			Description: x.Description,
+			Time:        x.LastEvent.Timestamp.Format("2006-01-02 15:04"),
 			Ack:         x.LastEvent.Acknowledged,
 			Url:         fmt.Sprintf("%s/tr_events.php?triggerid=%s&eventid=%s", server, x.TriggerID, x.LastEvent.EventID),
 		}
@@ -121,6 +123,7 @@ func getHosts(zapi *zabbix.Session) (hostItemsUnavailable []zabbixmonItem, hostI
 			Host:        x.Hostname,
 			Status:      availability[x.Available],
 			Description: fmt.Sprintf("Host in %s state", availability[x.Available]),
+			Time:        "-",
 			Ack:         false,
 			Url:         fmt.Sprintf("%s/hostinventories.php?hostid=%s", server, x.HostID),
 		}

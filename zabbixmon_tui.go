@@ -86,20 +86,22 @@ func tick() tea.Cmd {
 
 // update items table
 func updateTable(items []zabbixmonItem) table.Model {
-	var maxHostWidth, maxStatusWidth, maxDescWidth int
+	var maxHostWidth, maxStatusWidth, maxDescWidth, maxTimeWidth int
 
 	rows := []table.Row{}
 	for _, item := range items {
 		maxHostWidth = lo.Ternary(len([]rune(item.Host)) > maxHostWidth, len([]rune(item.Host)), maxHostWidth)
 		maxStatusWidth = lo.Ternary(len([]rune(item.Status)) > maxStatusWidth, len([]rune(item.Status)), maxStatusWidth)
 		maxDescWidth = lo.Ternary(len([]rune(item.Description)) > maxDescWidth, len([]rune(item.Description)), maxDescWidth)
-		rows = append(rows, []string{item.Host, item.Status, item.Description, lo.Ternary(item.Ack, "✓", "✗")})
+		maxTimeWidth = lo.Ternary(len([]rune(item.Time)) > maxTimeWidth, len([]rune(item.Time)), maxTimeWidth)
+		rows = append(rows, []string{item.Host, item.Status, item.Description, item.Time, lo.Ternary(item.Ack, "✓", "✗")})
 	}
 
 	columns := []table.Column{
 		{Title: "Host", Width: maxHostWidth},
 		{Title: "Status", Width: maxStatusWidth},
 		{Title: "Description", Width: maxDescWidth},
+		{Title: "Time", Width: maxTimeWidth},
 		{Title: "Ack", Width: 3},
 	}
 
