@@ -2,6 +2,15 @@
 ## [Unreleased]
 
 
+<a name="v0.5.0"></a>
+## [v0.5.0] - 2022-08-21
+### Bug Fixes
+- keep cursor position after table update
+
+### Features
+- add event time to output
+
+
 <a name="v0.4.0"></a>
 ## [v0.4.0] - 2022-08-20
 ### Features
@@ -60,7 +69,8 @@
 <a name="v0.1.0"></a>
 ## v0.1.0 - 2022-06-06
 
-[Unreleased]: https://github.com/nikaro/zabbixmon/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/nikaro/zabbixmon/compare/v0.5.0...HEAD
+[v0.5.0]: https://github.com/nikaro/zabbixmon/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://github.com/nikaro/zabbixmon/compare/v0.3.4...v0.4.0
 [v0.3.4]: https://github.com/nikaro/zabbixmon/compare/v0.3.3...v0.3.4
 [v0.3.3]: https://github.com/nikaro/zabbixmon/compare/v0.3.2...v0.3.3
