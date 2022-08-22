@@ -50,6 +50,12 @@ clean:
 	rm -rf build/
 	rm -rf dist/
 
+.PHONY: precommit
+## precommit: Setup pre-commit hooks
+precommit:
+	pre-commit install
+	pre-commit install --hook-type commit-msg
+
 .PHONY: setup
 ## setup: Setup go modules
 setup:
