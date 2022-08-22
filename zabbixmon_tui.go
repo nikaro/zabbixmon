@@ -36,6 +36,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.String() {
 
+		case "s":
+			if err := openUrl("ssh://" + m.items[m.table.Cursor()].Host); err != nil {
+				log.Warn().Str("scope", "opening url").Err(err).Send()
+			}
+
 		case "o", "enter":
 			if err := openUrl(m.items[m.table.Cursor()].Url); err != nil {
 				log.Warn().Str("scope", "opening url").Err(err).Send()
