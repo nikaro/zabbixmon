@@ -2,6 +2,12 @@
 ## [Unreleased]
 
 
+<a name="v0.6.0"></a>
+## [v0.6.0] - 2022-08-24
+### Features
+- **tui:** add `s` keybinding to open ssh://host
+
+
 <a name="v0.5.0"></a>
 ## [v0.5.0] - 2022-08-21
 ### Bug Fixes
@@ -69,7 +75,8 @@
 <a name="v0.1.0"></a>
 ## v0.1.0 - 2022-06-06
 
-[Unreleased]: https://github.com/nikaro/zabbixmon/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/nikaro/zabbixmon/compare/v0.6.0...HEAD
+[v0.6.0]: https://github.com/nikaro/zabbixmon/compare/v0.5.0...v0.6.0
 [v0.5.0]: https://github.com/nikaro/zabbixmon/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://github.com/nikaro/zabbixmon/compare/v0.3.4...v0.4.0
 [v0.3.4]: https://github.com/nikaro/zabbixmon/compare/v0.3.3...v0.3.4
