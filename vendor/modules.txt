@@ -94,7 +94,7 @@ github.com/pelletier/go-toml/v2/internal/tracker
 # github.com/rivo/uniseg v0.3.4
 ## explicit; go 1.18
 github.com/rivo/uniseg
-# github.com/rs/zerolog v1.27.0
+# github.com/rs/zerolog v1.28.0
 ## explicit; go 1.15
 github.com/rs/zerolog
 github.com/rs/zerolog/internal/cbor
