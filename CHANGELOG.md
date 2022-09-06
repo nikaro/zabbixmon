@@ -2,6 +2,12 @@
 ## [Unreleased]
 
 
+<a name="v0.6.1"></a>
+## [v0.6.1] - 2022-08-31
+### Bug Fixes
+- exit on zabbix connect/fetch errors
+
+
 <a name="v0.6.0"></a>
 ## [v0.6.0] - 2022-08-24
 ### Features
@@ -75,7 +81,8 @@
 <a name="v0.1.0"></a>
 ## v0.1.0 - 2022-06-06
 
-[Unreleased]: https://github.com/nikaro/zabbixmon/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/nikaro/zabbixmon/compare/v0.6.1...HEAD
+[v0.6.1]: https://github.com/nikaro/zabbixmon/compare/v0.6.0...v0.6.1
 [v0.6.0]: https://github.com/nikaro/zabbixmon/compare/v0.5.0...v0.6.0
 [v0.5.0]: https://github.com/nikaro/zabbixmon/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://github.com/nikaro/zabbixmon/compare/v0.3.4...v0.4.0
