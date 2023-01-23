@@ -48,8 +48,8 @@ github.com/inconshreveable/mousetrap
 # github.com/lucasb-eyer/go-colorful v1.2.0
 ## explicit; go 1.12
 github.com/lucasb-eyer/go-colorful
-# github.com/magiconair/properties v1.8.6
-## explicit; go 1.13
+# github.com/magiconair/properties v1.8.7
+## explicit; go 1.19
 github.com/magiconair/properties
 # github.com/mattn/go-colorable v0.1.13
 ## explicit; go 1.15
@@ -85,15 +85,13 @@ github.com/muesli/termenv
 # github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
 ## explicit
 github.com/nu7hatch/gouuid
-# github.com/pelletier/go-toml v1.9.5
-## explicit; go 1.12
-github.com/pelletier/go-toml
-# github.com/pelletier/go-toml/v2 v2.0.5
+# github.com/pelletier/go-toml/v2 v2.0.6
 ## explicit; go 1.16
 github.com/pelletier/go-toml/v2
-github.com/pelletier/go-toml/v2/internal/ast
+github.com/pelletier/go-toml/v2/internal/characters
 github.com/pelletier/go-toml/v2/internal/danger
 github.com/pelletier/go-toml/v2/internal/tracker
+github.com/pelletier/go-toml/v2/unstable
 # github.com/rivo/uniseg v0.3.4
 ## explicit; go 1.18
 github.com/rivo/uniseg
@@ -106,7 +104,7 @@ github.com/rs/zerolog/log
 # github.com/samber/lo v1.37.0
 ## explicit; go 1.18
 github.com/samber/lo
-# github.com/spf13/afero v1.9.2
+# github.com/spf13/afero v1.9.3
 ## explicit; go 1.16
 github.com/spf13/afero
 github.com/spf13/afero/internal/common
@@ -123,7 +121,7 @@ github.com/spf13/jwalterweatherman
 # github.com/spf13/pflag v1.0.5
 ## explicit; go 1.12
 github.com/spf13/pflag
-# github.com/spf13/viper v1.14.0
+# github.com/spf13/viper v1.15.0
 ## explicit; go 1.17
 github.com/spf13/viper
 github.com/spf13/viper/internal/encoding
@@ -134,7 +132,7 @@ github.com/spf13/viper/internal/encoding/javaproperties
 github.com/spf13/viper/internal/encoding/json
 github.com/spf13/viper/internal/encoding/toml
 github.com/spf13/viper/internal/encoding/yaml
-# github.com/subosito/gotenv v1.4.1
+# github.com/subosito/gotenv v1.4.2
 ## explicit; go 1.18
 github.com/subosito/gotenv
 # github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af
@@ -143,7 +141,7 @@ github.com/tadvi/systray
 # golang.org/x/exp v0.0.0-20220827204233-334a2380cb91
 ## explicit; go 1.18
 golang.org/x/exp/constraints
-# golang.org/x/sys v0.0.0-20220908164124-27713097b956
+# golang.org/x/sys v0.3.0
 ## explicit; go 1.17
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
@@ -153,7 +151,7 @@ golang.org/x/sys/windows/registry
 # golang.org/x/term v0.0.0-20220722155259-a9ba230a4035
 ## explicit; go 1.17
 golang.org/x/term
-# golang.org/x/text v0.4.0
+# golang.org/x/text v0.5.0
 ## explicit; go 1.17
 golang.org/x/text/runes
 golang.org/x/text/transform
@@ -161,9 +159,6 @@ golang.org/x/text/unicode/norm
 # gopkg.in/ini.v1 v1.67.0
 ## explicit
 gopkg.in/ini.v1
-# gopkg.in/yaml.v2 v2.4.0
-## explicit; go 1.15
-gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
