@@ -1,10 +1,10 @@
-# github.com/aymanbagabas/go-osc52 v1.0.3
+# github.com/aymanbagabas/go-osc52 v1.2.1
 ## explicit; go 1.16
 github.com/aymanbagabas/go-osc52
-# github.com/cavaliercoder/go-zabbix v0.0.0-20220606012333-8601f92dd2eb
+# github.com/cavaliercoder/go-zabbix v0.0.0-20230131181515-93725c39d639
 ## explicit; go 1.16
 github.com/cavaliercoder/go-zabbix
-# github.com/charmbracelet/bubbles v0.13.1-0.20220902203015-13f52d678d31
+# github.com/charmbracelet/bubbles v0.15.0
 ## explicit; go 1.13
 github.com/charmbracelet/bubbles/key
 github.com/charmbracelet/bubbles/table
@@ -21,7 +21,7 @@ github.com/containerd/console
 # github.com/fsnotify/fsnotify v1.6.0
 ## explicit; go 1.16
 github.com/fsnotify/fsnotify
-# github.com/gen2brain/beeep v0.0.0-20220518085355-d7852edf42fc
+# github.com/gen2brain/beeep v0.0.0-20220909211152-5a9ec94374f6
 ## explicit; go 1.14
 github.com/gen2brain/beeep
 # github.com/go-toast/toast v0.0.0-20190211030409-01e6764cf0a4
@@ -42,7 +42,7 @@ github.com/hashicorp/hcl/hcl/token
 github.com/hashicorp/hcl/json/parser
 github.com/hashicorp/hcl/json/scanner
 github.com/hashicorp/hcl/json/token
-# github.com/inconshreveable/mousetrap v1.0.1
+# github.com/inconshreveable/mousetrap v1.1.0
 ## explicit; go 1.18
 github.com/inconshreveable/mousetrap
 # github.com/lucasb-eyer/go-colorful v1.2.0
@@ -54,7 +54,7 @@ github.com/magiconair/properties
 # github.com/mattn/go-colorable v0.1.13
 ## explicit; go 1.15
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.16
+# github.com/mattn/go-isatty v0.0.17
 ## explicit; go 1.15
 github.com/mattn/go-isatty
 # github.com/mattn/go-localereader v0.0.1
@@ -66,7 +66,7 @@ github.com/mattn/go-runewidth
 # github.com/mitchellh/mapstructure v1.5.0
 ## explicit; go 1.14
 github.com/mitchellh/mapstructure
-# github.com/muesli/ansi v0.0.0-20211031195517-c9f0611b6c70
+# github.com/muesli/ansi v0.0.0-20221106050444-61f0cd9a192a
 ## explicit; go 1.17
 github.com/muesli/ansi
 github.com/muesli/ansi/compressor
@@ -92,7 +92,7 @@ github.com/pelletier/go-toml/v2/internal/characters
 github.com/pelletier/go-toml/v2/internal/danger
 github.com/pelletier/go-toml/v2/internal/tracker
 github.com/pelletier/go-toml/v2/unstable
-# github.com/rivo/uniseg v0.3.4
+# github.com/rivo/uniseg v0.4.3
 ## explicit; go 1.18
 github.com/rivo/uniseg
 # github.com/rs/zerolog v1.29.0
@@ -138,20 +138,20 @@ github.com/subosito/gotenv
 # github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af
 ## explicit
 github.com/tadvi/systray
-# golang.org/x/exp v0.0.0-20220827204233-334a2380cb91
+# golang.org/x/exp v0.0.0-20230203172020-98cc5a0785f9
 ## explicit; go 1.18
 golang.org/x/exp/constraints
-# golang.org/x/sys v0.3.0
+# golang.org/x/sys v0.4.0
 ## explicit; go 1.17
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 golang.org/x/sys/windows/registry
-# golang.org/x/term v0.0.0-20220722155259-a9ba230a4035
+# golang.org/x/term v0.4.0
 ## explicit; go 1.17
 golang.org/x/term
-# golang.org/x/text v0.5.0
+# golang.org/x/text v0.6.0
 ## explicit; go 1.17
 golang.org/x/text/runes
 golang.org/x/text/transform
