@@ -2,10 +2,37 @@
 ## [Unreleased]
 
 
+<a name="v0.6.2"></a>
+## [v0.6.2] - 2023-02-04
+### Chore
+- **deps:** bump all
+- **deps:** bump github.com/rs/zerolog from 1.28.0 to 1.29.0
+- **deps:** bump github.com/spf13/viper from 1.14.0 to 1.15.0
+- **deps:** bump github.com/samber/lo from 1.36.0 to 1.37.0
+- **deps:** bump github.com/samber/lo from 1.34.0 to 1.36.0
+- **deps:** bump github.com/charmbracelet/bubbletea
+- **deps:** bump github.com/charmbracelet/bubbletea
+- **deps:** bump github.com/samber/lo from 1.33.0 to 1.34.0
+- **deps:** bump github.com/spf13/viper from 1.13.0 to 1.14.0
+- **deps:** bump github.com/spf13/cobra from 1.6.0 to 1.6.1
+- **deps:** bump github.com/spf13/cobra from 1.5.0 to 1.6.0
+- **deps:** bump github.com/samber/lo from 1.31.0 to 1.33.0
+- **deps:** bump github.com/samber/lo from 1.29.0 to 1.31.0
+- **deps:** bump github.com/samber/lo from 1.28.2 to 1.29.0
+- **deps:** bump github.com/samber/lo from 1.28.0 to 1.28.2
+- **deps:** bump github.com/charmbracelet/lipgloss from 0.5.0 to 0.6.0
+- **deps:** update viper and bubbles
+- **deps:** bump github.com/samber/lo from 1.27.1 to 1.28.0
+
+
 <a name="v0.6.1"></a>
 ## [v0.6.1] - 2022-08-31
 ### Bug Fixes
 - exit on zabbix connect/fetch errors
+
+### Chore
+- **deps:** bump github.com/rs/zerolog from 1.27.0 to 1.28.0
+- **deps:** bump github.com/samber/lo from 1.27.0 to 1.27.1
 
 
 <a name="v0.6.0"></a>
@@ -25,12 +52,22 @@
 
 <a name="v0.4.0"></a>
 ## [v0.4.0] - 2022-08-20
+### Chore
+- **deps:** bump github.com/pterm/pterm from 0.12.44 to 0.12.45
+- **deps:** bump github.com/samber/lo from 1.26.0 to 1.27.0
+- **deps:** bump github.com/pterm/pterm from 0.12.42 to 0.12.44
+- **deps:** bump github.com/samber/lo from 1.25.0 to 1.26.0
+- **deps:** bump github.com/samber/lo from 1.21.0 to 1.25.0
+
 ### Features
 - add navigation between items
 
 
 <a name="v0.3.4"></a>
 ## [v0.3.4] - 2022-06-24
+### Chore
+- better error messages
+
 ### Code Refactoring
 - use a more simple tui framework
 
@@ -56,6 +93,10 @@
 ### Bug Fixes
 - use buffered chan
 
+### Chore
+- simplify flag/config bind
+- check error on clean exec
+
 ### Code Refactoring
 - revert split in modules
 
@@ -64,6 +105,12 @@
 ## [v0.3.0] - 2022-06-13
 ### Bug Fixes
 - fail if not config file found
+
+### Chore
+- update deps
+- log instead of panic
+- do not re-format vendored files
+- **deps:** bump github.com/rs/zerolog from 1.26.1 to 1.27.0
 
 ### Features
 - add 'grep' flag to filter hosts with regexp
@@ -80,8 +127,15 @@
 
 <a name="v0.1.0"></a>
 ## v0.1.0 - 2022-06-06
+### Chore
+- move config into its own package
+- split into packages
+- fix output filename
+- update go-zabbix dependency
 
-[Unreleased]: https://github.com/nikaro/zabbixmon/compare/v0.6.1...HEAD
+
+[Unreleased]: https://github.com/nikaro/zabbixmon/compare/v0.6.2...HEAD
+[v0.6.2]: https://github.com/nikaro/zabbixmon/compare/v0.6.1...v0.6.2
 [v0.6.1]: https://github.com/nikaro/zabbixmon/compare/v0.6.0...v0.6.1
 [v0.6.0]: https://github.com/nikaro/zabbixmon/compare/v0.5.0...v0.6.0
 [v0.5.0]: https://github.com/nikaro/zabbixmon/compare/v0.4.0...v0.5.0
