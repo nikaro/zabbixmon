@@ -2,6 +2,14 @@
 ## [Unreleased]
 
 
+<a name="v0.6.3"></a>
+## [v0.6.3] - 2023-03-23
+### Chore
+- release v0.6.3
+- **deps:** bump github.com/charmbracelet/lipgloss from 0.6.0 to 0.7.1
+- **deps:** bump github.com/charmbracelet/bubbletea
+
+
 <a name="v0.6.2"></a>
 ## [v0.6.2] - 2023-02-04
 ### Chore
@@ -134,7 +142,8 @@
 - update go-zabbix dependency
 
 
-[Unreleased]: https://github.com/nikaro/zabbixmon/compare/v0.6.2...HEAD
+[Unreleased]: https://github.com/nikaro/zabbixmon/compare/v0.6.3...HEAD
+[v0.6.3]: https://github.com/nikaro/zabbixmon/compare/v0.6.2...v0.6.3
 [v0.6.2]: https://github.com/nikaro/zabbixmon/compare/v0.6.1...v0.6.2
 [v0.6.1]: https://github.com/nikaro/zabbixmon/compare/v0.6.0...v0.6.1
 [v0.6.0]: https://github.com/nikaro/zabbixmon/compare/v0.5.0...v0.6.0
