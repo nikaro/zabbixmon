@@ -25,7 +25,7 @@ changelog:
 
 aurs:
   - name: "zabbixmon-bin"
-    homepage: "https://github.con/nikaro/zabbixmon"
+    homepage: "https://github.com/nikaro/zabbixmon"
     description: "CLI application to show currents alerts on Zabbix."
     maintainers:
       - "Nicolas Karolak <nicolas at karolak dot fr>"
@@ -38,7 +38,7 @@ aurs:
 
 brews:
   - name: "zabbixmon"
-    homepage: "https://github.con/nikaro/zabbixmon"
+    homepage: "https://github.com/nikaro/zabbixmon"
     description: "CLI application to show currents alerts on Zabbix"
     license: "GPL-3.0-or-later"
     tap:
@@ -51,7 +51,7 @@ brews:
 
 nfpms:
   - package_name: "zabbixmon"
-    homepage: "https://github.con/nikaro/zabbixmon"
+    homepage: "https://github.com/nikaro/zabbixmon"
     description: "CLI application to show currents alerts on Zabbix."
     maintainer: "Nicolas Karolak <nicolas@karolak.fr>"
     license: "GPLv3"
