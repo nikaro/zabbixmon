@@ -35,7 +35,7 @@ type Column struct {
 }
 
 // KeyMap defines keybindings. It satisfies to the help.KeyMap interface, which
-// is used to render the menu menu.
+// is used to render the menu.
 type KeyMap struct {
 	LineUp       key.Binding
 	LineDown     key.Binding
@@ -188,8 +188,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m, nil
 	}
 
-	var cmds []tea.Cmd
-
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -214,7 +212,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		}
 	}
 
-	return m, tea.Batch(cmds...)
+	return m, nil
 }
 
 // Focused returns the focus state of the table.
@@ -222,7 +220,7 @@ func (m Model) Focused() bool {
 	return m.focus
 }
 
-// Focus focusses the table, allowing the user to move around the rows and
+// Focus focuses the table, allowing the user to move around the rows and
 // interact.
 func (m *Model) Focus() {
 	m.focus = true
@@ -266,6 +264,10 @@ func (m *Model) UpdateViewport() {
 // SelectedRow returns the selected row.
 // You can cast it to your own implementation.
 func (m Model) SelectedRow() Row {
+	if m.cursor < 0 || m.cursor >= len(m.rows) {
+		return nil
+	}
+
 	return m.rows[m.cursor]
 }
 
@@ -274,13 +276,13 @@ func (m Model) Rows() []Row {
 	return m.rows
 }
 
-// SetRows set a new rows state.
+// SetRows sets a new rows state.
 func (m *Model) SetRows(r []Row) {
 	m.rows = r
 	m.UpdateViewport()
 }
 
-// SetColumns set a new columns state.
+// SetColumns sets a new columns state.
 func (m *Model) SetColumns(c []Column) {
 	m.cols = c
 	m.UpdateViewport()
@@ -319,7 +321,7 @@ func (m *Model) SetCursor(n int) {
 	m.UpdateViewport()
 }
 
-// MoveUp moves the selection up by any number of row.
+// MoveUp moves the selection up by any number of rows.
 // It can not go above the first row.
 func (m *Model) MoveUp(n int) {
 	m.cursor = clamp(m.cursor-n, 0, len(m.rows)-1)
@@ -334,7 +336,7 @@ func (m *Model) MoveUp(n int) {
 	m.UpdateViewport()
 }
 
-// MoveDown moves the selection down by any number of row.
+// MoveDown moves the selection down by any number of rows.
 // It can not go below the last row.
 func (m *Model) MoveDown(n int) {
 	m.cursor = clamp(m.cursor+n, 0, len(m.rows)-1)
