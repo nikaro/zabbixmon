@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -49,7 +48,7 @@ func init() {
 
 	// bind flag to config
 	if err := viper.BindPFlags(rootCmd.Flags()); err != nil {
-		log.Warn().Err(err).Send()
+		slog.Warn(err.Error())
 	}
 }
 
@@ -58,7 +57,7 @@ func initConfig() {
 
 	home, err := os.UserHomeDir()
 	if err != nil {
-		log.Error().Err(err).Send()
+		slog.Error(err.Error())
 		os.Exit(1)
 	}
 
@@ -85,14 +84,14 @@ func initConfig() {
 
 	// read config
 	if err := viper.ReadInConfig(); err != nil {
-		log.Error().Err(err).Send()
+		slog.Error(err.Error())
 		os.Exit(1)
 	}
 
 	// check mandatory values
 	for _, setting := range []string{"server", "username", "password"} {
 		if !viper.IsSet(setting) {
-			log.Error().Str("scope", "config").Msg(fmt.Sprintf("'%s' is not set", setting))
+			slog.Error(fmt.Sprintf("'%s' is not set", setting), slog.String("scope", "config"))
 			os.Exit(1)
 		}
 	}
@@ -114,11 +113,14 @@ func initConfig() {
 
 func run(cmd *cobra.Command, args []string) {
 	// set log level
-	logLevel := lo.Ternary(config.Debug, zerolog.DebugLevel, zerolog.InfoLevel)
-	zerolog.SetGlobalLevel(logLevel)
+	loggerOpts := &slog.HandlerOptions{
+		Level: lo.Ternary(config.Debug, slog.LevelDebug, slog.LevelInfo),
+	}
+	logger := slog.New(slog.NewTextHandler(os.Stderr, loggerOpts))
+	slog.SetDefault(logger)
 
 	// dump settings in logs
-	log.Debug().Str("type", "settings").Str("settings", fmt.Sprintf("%#v", config)).Send()
+	slog.Debug("", slog.String("type", "settings"), slog.String("settings", fmt.Sprintf("%#v", config)))
 
 	// intialize model
 	m := initModel()
@@ -128,14 +130,14 @@ func run(cmd *cobra.Command, args []string) {
 
 	// start ui
 	if err := tea.NewProgram(m).Start(); err != nil {
-		log.Error().Err(err).Str("scope", "starting program").Send()
+		slog.Error(err.Error(), slog.String("scope", "starting program"))
 		os.Exit(1)
 	}
 }
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Error().Err(err).Str("scope", "command execution").Send()
+		slog.Error(err.Error(), slog.String("scope", "command execution"))
 		os.Exit(1)
 	}
 }

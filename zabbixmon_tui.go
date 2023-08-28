@@ -1,13 +1,13 @@
 package main
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/cavaliercoder/go-zabbix"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 )
 
@@ -38,12 +38,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "s":
 			if err := openUrl("ssh://" + m.items[m.table.Cursor()].Host); err != nil {
-				log.Warn().Str("scope", "opening url").Err(err).Send()
+				slog.Warn(err.Error(), slog.String("scope", "opening url"))
 			}
 
 		case "o", "enter":
 			if err := openUrl(m.items[m.table.Cursor()].Url); err != nil {
-				log.Warn().Str("scope", "opening url").Err(err).Send()
+				slog.Warn(err.Error(), slog.String("scope", "opening url"))
 			}
 
 		case "r":

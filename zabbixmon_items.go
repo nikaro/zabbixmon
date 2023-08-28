@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
+	"os"
 	"regexp"
 	"strings"
 
 	"github.com/cavaliercoder/go-zabbix"
-	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 )
 
@@ -42,7 +43,8 @@ func getSession(server string, username string, password string) *zabbix.Session
 		password,
 	)
 	if err != nil {
-		log.Fatal().Err(err).Msg("cannot authenticate")
+		slog.Error("cannot authenticate", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 
 	return zapi
@@ -68,9 +70,15 @@ func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []
 	}
 	triggers, err := zapi.GetTriggers(triggerParams)
 	if err != nil {
-		log.Fatal().Err(err).Msg("cannot get triggers")
+		slog.Error("cannot get triggers", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
-	log.Debug().Str("type", "triggers_raw").Str("scope", "all").Str("triggers", fmt.Sprintf("%#v", triggers)).Send()
+	slog.Debug(
+		"",
+		slog.String("type", "triggers_raw"),
+		slog.String("scope", "all"),
+		slog.String("triggers", fmt.Sprintf("%#v", triggers)),
+	)
 
 	// ensure we only have currently in problem state
 	triggers = lo.Filter(triggers, func(x zabbix.Trigger, _ int) bool { return x.LastEvent.Value == 1 })
@@ -87,15 +95,30 @@ func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []
 			Url:         fmt.Sprintf("%s/tr_events.php?triggerid=%s&eventid=%s", server, x.TriggerID, x.LastEvent.EventID),
 		}
 	})
-	log.Debug().Str("type", "triggers").Str("scope", "all").Str("items", fmt.Sprintf("%#v", triggerItemsAll)).Send()
+	slog.Debug(
+		"",
+		slog.String("type", "triggers"),
+		slog.String("scope", "all"),
+		slog.String("items", fmt.Sprintf("%#v", triggerItemsAll)),
+	)
 
 	// filter unacknowledged items
 	triggerItemsUnack = lo.Filter(triggerItemsAll, func(x zabbixmonItem, _ int) bool { return !x.Ack })
-	log.Debug().Str("type", "triggers").Str("scope", "unack").Str("items", fmt.Sprintf("%#v", triggerItemsUnack)).Send()
+	slog.Debug(
+		"",
+		slog.String("type", "triggers"),
+		slog.String("scope", "unack"),
+		slog.String("items", fmt.Sprintf("%#v", triggerItemsUnack)),
+	)
 
 	// filter acknowledged items
 	triggerItemsAck = lo.Filter(triggerItemsAll, func(x zabbixmonItem, _ int) bool { return x.Ack })
-	log.Debug().Str("type", "triggers").Str("scope", "ack").Str("items", fmt.Sprintf("%#v", triggerItemsAck)).Send()
+	slog.Debug(
+		"",
+		slog.String("type", "triggers"),
+		slog.String("scope", "ack"),
+		slog.String("items", fmt.Sprintf("%#v", triggerItemsAck)),
+	)
 
 	return triggerItemsUnack, triggerItemsAck
 }
@@ -112,9 +135,15 @@ func getHosts(zapi *zabbix.Session) (hostItemsUnavailable []zabbixmonItem, hostI
 	}
 	hosts, err := zapi.GetHosts(hostParams)
 	if err != nil {
-		log.Fatal().Err(err).Msg("cannot get hosts")
+		slog.Error("cannot get hosts", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
-	log.Debug().Str("type", "hosts_raw").Str("scope", "all").Str("hosts", fmt.Sprintf("%#v", hosts)).Send()
+	slog.Debug(
+		"",
+		slog.String("type", "hosts_raw"),
+		slog.String("scope", "all"),
+		slog.String("items", fmt.Sprintf("%#v", hosts)),
+	)
 
 	// tranform hosts into structured items
 	availability := lo.Invert(hostAvalability)
@@ -128,15 +157,30 @@ func getHosts(zapi *zabbix.Session) (hostItemsUnavailable []zabbixmonItem, hostI
 			Url:         fmt.Sprintf("%s/hostinventories.php?hostid=%s", server, x.HostID),
 		}
 	})
-	log.Debug().Str("type", "hosts").Str("scope", "all").Str("items", fmt.Sprintf("%#v", hostItemsAll)).Send()
+	slog.Debug(
+		"",
+		slog.String("type", "hosts"),
+		slog.String("scope", "all"),
+		slog.String("items", fmt.Sprintf("%#v", hostItemsAll)),
+	)
 
 	// filter unavailable items
 	hostItemsUnavailable = lo.Filter(hostItemsAll, func(x zabbixmonItem, _ int) bool { return x.Status == "UNAVAILABLE" })
-	log.Debug().Str("type", "hosts").Str("scope", "unavailable").Str("items", fmt.Sprintf("%#v", hostItemsUnavailable)).Send()
+	slog.Debug(
+		"",
+		slog.String("type", "hosts"),
+		slog.String("scope", "unavailable"),
+		slog.String("items", fmt.Sprintf("%#v", hostItemsUnavailable)),
+	)
 
 	// filter unknown items
 	hostItemsUnknown = lo.Filter(hostItemsAll, func(x zabbixmonItem, _ int) bool { return x.Status == "UNKNOWN" })
-	log.Debug().Str("type", "hosts").Str("scope", "unknown").Str("items", fmt.Sprintf("%#v", hostItemsUnknown)).Send()
+	slog.Debug(
+		"",
+		slog.String("type", "hosts"),
+		slog.String("scope", "unknown"),
+		slog.String("items", fmt.Sprintf("%#v", hostItemsUnknown)),
+	)
 
 	return hostItemsUnavailable, hostItemsUnknown
 }

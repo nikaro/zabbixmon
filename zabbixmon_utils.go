@@ -3,12 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"runtime"
 
 	"github.com/gen2brain/beeep"
-	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 )
 
@@ -17,7 +17,7 @@ func dumpJsonIfRedirect(items []zabbixmonItem) {
 	o, _ := os.Stdout.Stat()
 	if (o.Mode() & os.ModeCharDevice) != os.ModeCharDevice {
 		if data, err := json.Marshal(items); err != nil {
-			log.Error().Err(err).Str("scope", "dumping json").Send()
+			slog.Error(err.Error(), slog.String("scope", "dumping json"))
 			os.Exit(1)
 		} else {
 			fmt.Println(string(data))
@@ -52,9 +52,9 @@ func notify(items, prevItems []zabbixmonItem) {
 		newItems, _ := lo.Difference(items, prevItems)
 
 		for _, item := range newItems {
-			log.Debug().Str("type", "new_item").Str("item", fmt.Sprintf("%#v", item)).Send()
+			slog.Debug("", slog.String("type", "new_item"), slog.String("item", fmt.Sprintf("%#v", item)))
 			if err := beeep.Notify(fmt.Sprintf("%s - %s", item.Status, item.Host), item.Description, "assets/information.png"); err != nil {
-				log.Error().Err(err).Str("scope", "sending notification").Send()
+				slog.Error(err.Error(), slog.String("scope", "sending notification"))
 				os.Exit(1)
 			}
 		}
