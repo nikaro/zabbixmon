@@ -6,7 +6,7 @@ require (
 	github.com/cavaliercoder/go-zabbix v0.0.0-20230131181515-93725c39d639
 	github.com/charmbracelet/bubbles v0.16.1
 	github.com/charmbracelet/bubbletea v0.24.2
-	github.com/charmbracelet/lipgloss v0.9.0
+	github.com/charmbracelet/lipgloss v0.9.1
 	github.com/gen2brain/beeep v0.0.0-20230907135156-1a38885a97fc
 	github.com/samber/lo v1.38.1
 	github.com/spf13/cobra v1.7.0
