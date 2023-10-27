@@ -1,8 +1,19 @@
 <a name="unreleased"></a>
-## [Unreleased]
+## 0.8.0 (2023-10-27)
 
+### Fix
 
-<a name="v0.6.3"></a>
+- **deps**: update module github.com/charmbracelet/lipgloss to v0.9.1 (#55)
+- **deps**: update module github.com/charmbracelet/lipgloss to v0.9.0 (#54)
+- **deps**: update module github.com/spf13/viper to v1.17.0 (#52)
+- **deps**: update github.com/gen2brain/beeep digest to 1a38885 (#47)
+
+## v0.7.0 (2023-08-28)
+
+### Refactor
+
+- replace zerolog by stdlib slog
+
 ## [v0.6.3] - 2023-03-23
 ### Chore
 - release v0.6.3
