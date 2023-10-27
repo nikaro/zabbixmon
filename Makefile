@@ -78,11 +78,6 @@ format:
 test:
 	go test ./...
 
-.PHONY: changelog
-## changelog: Generate changelog
-changelog:
-	git-chglog -o CHANGELOG.md ${ARGS}
-
 .PHONY: help
 ## help: Prints this help message
 help:

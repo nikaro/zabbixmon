@@ -1,8 +1,4 @@
----
-
-before:
-  hooks:
-    - "go mod tidy"
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
 
 builds:
   - env:
@@ -14,14 +10,6 @@ builds:
     goarch:
       - "amd64"
       - "arm64"
-
-changelog:
-  filters:
-    exclude:
-      - "^docs:"
-      - "^test:"
-      - "^ci:"
-      - "typo"
 
 aurs:
   - name: "zabbixmon-bin"
@@ -41,7 +29,7 @@ brews:
     homepage: "https://github.com/nikaro/zabbixmon"
     description: "CLI application to show currents alerts on Zabbix"
     license: "GPL-3.0-or-later"
-    tap:
+    repository:
       owner: "nikaro"
       name: "homebrew-tap"
       token: "{{ .Env.GH_PAT }}"
