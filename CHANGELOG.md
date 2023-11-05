@@ -1,4 +1,10 @@
 <a name="unreleased"></a>
+## 0.8.1 (2023-11-05)
+
+### Fix
+
+- replace deprecated tea.Program.Start by Run
+
 ## 0.8.0 (2023-10-27)
 
 ### Fix
