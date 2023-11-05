@@ -129,7 +129,7 @@ func run(cmd *cobra.Command, args []string) {
 	dumpJsonIfRedirect(getItems(m.zapi, config.ItemTypes, config.MinSeverity, config.Grep))
 
 	// start ui
-	if err := tea.NewProgram(m).Start(); err != nil {
+	if _, err := tea.NewProgram(m).Run(); err != nil {
 		slog.Error(err.Error(), slog.String("scope", "starting program"))
 		os.Exit(1)
 	}
