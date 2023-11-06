@@ -1,4 +1,10 @@
 <a name="unreleased"></a>
+## 0.8.2 (2023-11-06)
+
+### Fix
+
+- **deps**: update module github.com/spf13/cobra to v1.8.0 (#63)
+
 ## 0.8.1 (2023-11-05)
 
 ### Fix
