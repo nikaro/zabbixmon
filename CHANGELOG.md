@@ -1,4 +1,10 @@
 <a name="unreleased"></a>
+## 0.8.3 (2023-12-04)
+
+### Fix
+
+- **deps**: update module github.com/samber/lo to v1.39.0 (#73)
+
 ## 0.8.2 (2023-11-06)
 
 ### Fix
