@@ -1,4 +1,10 @@
 <a name="unreleased"></a>
+## 0.8.5 (2023-12-18)
+
+### Fix
+
+- **deps**: update module github.com/charmbracelet/bubbles to v0.17.1 (#78)
+
 ## 0.8.4 (2023-12-11)
 
 ### Fix
