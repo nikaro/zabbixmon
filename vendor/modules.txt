@@ -9,7 +9,7 @@ github.com/cavaliercoder/go-zabbix
 github.com/charmbracelet/bubbles/key
 github.com/charmbracelet/bubbles/table
 github.com/charmbracelet/bubbles/viewport
-# github.com/charmbracelet/bubbletea v0.24.2
+# github.com/charmbracelet/bubbletea v0.25.0
 ## explicit; go 1.17
 github.com/charmbracelet/bubbletea
 # github.com/charmbracelet/lipgloss v0.9.1
