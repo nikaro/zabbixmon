@@ -1,4 +1,10 @@
 <a name="unreleased"></a>
+## 0.8.6 (2023-12-25)
+
+### Fix
+
+- **deps**: update module github.com/spf13/viper to v1.18.2 (#81)
+
 ## 0.8.5 (2023-12-18)
 
 ### Fix
