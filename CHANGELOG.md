@@ -1,4 +1,10 @@
 <a name="unreleased"></a>
+## 0.8.7 (2024-01-15)
+
+### Fix
+
+- **deps**: update github.com/gen2brain/beeep digest to c7bb2cd (#84)
+
 ## 0.8.6 (2023-12-25)
 
 ### Fix
