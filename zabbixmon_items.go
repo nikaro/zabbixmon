@@ -1,8 +1,10 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -35,19 +37,25 @@ type zabbixmonItem struct {
 	Url         string `json:"url"`
 }
 
-func getSession(server string, username string, password string) *zabbix.Session {
+func getSession(server string, username string, password string, insecure bool) *zabbix.Session {
 	// authenticate to zabbix server
-	zapi, err := zabbix.NewSession(
-		server+"/api_jsonrpc.php",
-		username,
-		password,
-	)
-	if err != nil {
-		slog.Error("cannot authenticate", slog.String("error", err.Error()))
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: insecure,
+			},
+		},
+	}
+	session, sessionErr := zabbix.CreateClient(server+"/api_jsonrpc.php").
+		WithHTTPClient(client).
+		WithCredentials(username, password).
+		Connect()
+	if sessionErr != nil {
+		slog.Error("cannot authenticate", slog.String("error", sessionErr.Error()))
 		os.Exit(1)
 	}
 
-	return zapi
+	return session
 }
 
 func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []zabbixmonItem, triggerItemsAck []zabbixmonItem) {
