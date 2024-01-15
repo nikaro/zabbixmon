@@ -120,7 +120,7 @@ func updateTable(items []zabbixmonItem) table.Model {
 
 func initModel() model {
 	// zabbix auth
-	zapi := getSession(config.Server, config.Username, config.Password)
+	zapi := getSession(config.Server, config.Username, config.Password, config.ServerInsecure)
 
 	// fetch items
 	items := getItems(zapi, config.ItemTypes, config.MinSeverity, config.Grep)

@@ -18,16 +18,17 @@ var rootCmd = &cobra.Command{
 }
 
 type zabbixmonConfig struct {
-	ConfigFile  string
-	Server      string
-	Username    string
-	Password    string
-	Debug       bool
-	ItemTypes   []string
-	MinSeverity string
-	Refresh     int
-	Notify      bool
-	Grep        string
+	ConfigFile     string
+	Server         string
+	ServerInsecure bool
+	Username       string
+	Password       string
+	Debug          bool
+	ItemTypes      []string
+	MinSeverity    string
+	Refresh        int
+	Notify         bool
+	Grep           string
 }
 
 var config *zabbixmonConfig
@@ -37,6 +38,7 @@ func init() {
 
 	// set flags
 	rootCmd.Flags().StringP("server", "s", "", "zabbix server url")
+	rootCmd.Flags().BoolP("server-insecure", "k", false, "do not check tls certificate")
 	rootCmd.Flags().StringP("username", "u", "", "zabbix username")
 	rootCmd.Flags().StringP("password", "p", "", "zabbix password")
 	rootCmd.Flags().IntP("refresh", "r", 0, "data refreshing interval")
@@ -76,6 +78,7 @@ func initConfig() {
 	viper.SetDefault("min-severity", "average")
 	viper.SetDefault("refresh", 60)
 	viper.SetDefault("notify", false)
+	viper.SetDefault("server-insecure", false)
 	viper.SetDefault("grep", "")
 
 	// bind environment variables
@@ -98,16 +101,17 @@ func initConfig() {
 
 	// update global config object
 	config = &zabbixmonConfig{
-		ConfigFile:  viper.ConfigFileUsed(),
-		Server:      viper.GetString("server"),
-		Username:    viper.GetString("username"),
-		Password:    viper.GetString("password"),
-		Debug:       viper.GetBool("debug"),
-		ItemTypes:   viper.GetStringSlice("item-types"),
-		MinSeverity: viper.GetString("min-severity"),
-		Refresh:     viper.GetInt("refresh"),
-		Notify:      viper.GetBool("notify"),
-		Grep:        viper.GetString("grep"),
+		ConfigFile:     viper.ConfigFileUsed(),
+		Server:         viper.GetString("server"),
+		ServerInsecure: viper.GetBool("server-insecure"),
+		Username:       viper.GetString("username"),
+		Password:       viper.GetString("password"),
+		Debug:          viper.GetBool("debug"),
+		ItemTypes:      viper.GetStringSlice("item-types"),
+		MinSeverity:    viper.GetString("min-severity"),
+		Refresh:        viper.GetInt("refresh"),
+		Notify:         viper.GetBool("notify"),
+		Grep:           viper.GetString("grep"),
 	}
 }
 
