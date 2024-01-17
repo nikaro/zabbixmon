@@ -1,4 +1,14 @@
 <a name="unreleased"></a>
+## 0.9.0 (2024-01-17)
+
+### Feat
+
+- add setting to skip tls verification
+
+### Refactor
+
+- replace unmaintained zabbix lib
+
 ## 0.8.7 (2024-01-15)
 
 ### Fix
