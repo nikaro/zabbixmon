@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/cavaliercoder/go-zabbix"
+	"github.com/fabiang/go-zabbix"
 	"github.com/samber/lo"
 )
 
@@ -98,8 +98,8 @@ func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []
 			Host:        x.Hosts[0].Hostname,
 			Status:      strings.ToUpper(severity[x.Severity]),
 			Description: x.Description,
-			Time:        x.LastEvent.Timestamp.Format("2006-01-02 15:04"),
-			Ack:         x.LastEvent.Acknowledged,
+			Time:        x.LastEvent.Timestamp().Format("2006-01-02 15:04"),
+			Ack:         bool(x.LastEvent.Acknowledged),
 			Url:         fmt.Sprintf("%s/tr_events.php?triggerid=%s&eventid=%s", server, x.TriggerID, x.LastEvent.EventID),
 		}
 	})
