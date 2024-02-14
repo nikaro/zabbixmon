@@ -66,12 +66,14 @@ setup:
 .PHONY: lint
 ## lint: Runs linter on the project
 lint:
-	golangci-lint run
+	go vet ./...
+	go fix ./...
+	staticcheck ./...
 
 .PHONY: format
 ## format: Runs goimports on the project
 format:
-	fd -t file -e go -E vendor/ | xargs goimports -l -w
+	go fmt ./...
 
 .PHONY: test
 ## test: Runs go test
