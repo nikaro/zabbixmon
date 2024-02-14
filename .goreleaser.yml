@@ -32,7 +32,7 @@ brews:
     repository:
       owner: "nikaro"
       name: "homebrew-tap"
-      token: "{{ .Env.GH_PAT }}"
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     folder: "Formula"
     test: |-
       system "#{bin}/zabbixmon", "--help"
