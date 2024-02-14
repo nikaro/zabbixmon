@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+env:
+  # renovate: datasource=github-releases depName=dominikh/go-tools
+  STATICCHECK_VERSION: 2023.1.6
+
 jobs:
   lint:
     name: Lint
@@ -24,11 +28,11 @@ jobs:
           check-latest: true
           go-version-file: go.mod
 
+      - name: Install staticcheck
+        run: go install "honnef.co/go/tools/cmd/staticcheck@$STATICCHECK_VERSION"
+
       - name: Run pre-commit
         uses: nikaro/actions/pre-commit@07ebbc2697c1505689d0c8fab407f3f18b325788 # 1.3.15
-
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@3cfe3a4abbb849e10058ce4af15d205b6da42804 # v4.0.0
 
   build:
     name: Build
@@ -44,8 +48,9 @@ jobs:
           check-latest: true
           go-version-file: go.mod
 
+      # TODO: remove vendor/ directory and use go mod download
       - name: Build
-        run: go build -v -mod vendor .
+        run: go build -v .
 
   test:
     name: Test
