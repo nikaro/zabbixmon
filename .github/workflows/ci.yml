@@ -48,7 +48,6 @@ jobs:
           check-latest: true
           go-version-file: go.mod
 
-      # TODO: remove vendor/ directory and use go mod download
       - name: Build
         run: go build -v .
 
