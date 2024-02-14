@@ -3,14 +3,10 @@ name: CD
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - .github/**
-      - .cz.toml
-      - .gitignore
-      - .goreleaser.yml
-      - .pre-commit-config.yaml
-      - .yamllint.yml
-      - CHANGELOG.md
+    paths:
+      - go.*
+      - zabbixmon*.go
+      - assets/**
   workflow_dispatch:
 
 env:
@@ -18,8 +14,14 @@ env:
   COMMITIZEN_VERSION: 3.14.1
 
 jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
   release:
     name: Release
+    needs: [ci]
     if: "!startsWith(github.event.head_commit.message, 'bump:')"
     runs-on: ubuntu-latest
     permissions:
