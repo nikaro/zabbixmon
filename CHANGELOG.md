@@ -1,4 +1,10 @@
 <a name="unreleased"></a>
+## 0.9.2 (2024-03-11)
+
+### Fix
+
+- **deps**: update module github.com/charmbracelet/lipgloss to v0.10.0
+
 ## 0.9.1 (2024-02-05)
 
 ### Fix
