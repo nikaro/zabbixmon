@@ -72,5 +72,4 @@ jobs:
           args: release --clean --release-notes _changelog.md
         env:
           AUR_KEY: ${{ secrets.AUR_KEY }}
-          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ github.token }}

@@ -24,19 +24,6 @@ aurs:
       install -Dm755 "./zabbixmon" "${pkgdir}/usr/bin/zabbixmon"
       install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/zabbixmon/LICENSE"
 
-brews:
-  - name: "zabbixmon"
-    homepage: "https://github.com/nikaro/zabbixmon"
-    description: "CLI application to show currents alerts on Zabbix"
-    license: "GPL-3.0-or-later"
-    repository:
-      owner: "nikaro"
-      name: "homebrew-tap"
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
-    folder: "Formula"
-    test: |-
-      system "#{bin}/zabbixmon", "--help"
-
 nfpms:
   - package_name: "zabbixmon"
     homepage: "https://github.com/nikaro/zabbixmon"
