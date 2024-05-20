@@ -7,7 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.26.2
 	github.com/charmbracelet/lipgloss v0.10.0
 	github.com/fabiang/go-zabbix v1.0.0
-	github.com/gen2brain/beeep v0.0.0-20240112042604-c7bb2cd88fea
+	github.com/gen2brain/beeep v0.0.0-20240516210008-9c006672e7f4
 	github.com/samber/lo v1.39.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
