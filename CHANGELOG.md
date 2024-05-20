@@ -1,4 +1,10 @@
 <a name="unreleased"></a>
+## 0.9.5 (2024-05-20)
+
+### Fix
+
+- **deps**: update module github.com/gen2brain/beeep to v0.0.0-20240516210008-9c006672e7f4 (#120)
+
 ## 0.9.4 (2024-05-20)
 
 ### Fix
