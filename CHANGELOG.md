@@ -1,4 +1,10 @@
 <a name="unreleased"></a>
+## 0.9.6 (2024-05-29)
+
+### Fix
+
+- **deps**: update all
+
 ## 0.9.5 (2024-05-20)
 
 ### Fix
