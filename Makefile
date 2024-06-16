@@ -61,7 +61,6 @@ precommit:
 setup:
 	go get -u all
 	go mod tidy
-	go mod vendor
 
 .PHONY: lint
 ## lint: Runs linter on the project
@@ -69,6 +68,8 @@ lint:
 	go vet ./...
 	go fix ./...
 	staticcheck ./...
+	govulncheck ./...
+	golangci-lint run
 
 .PHONY: format
 ## format: Runs goimports on the project
