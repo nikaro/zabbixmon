@@ -1,4 +1,10 @@
 <a name="unreleased"></a>
+## 0.9.9 (2024-06-26)
+
+### Fix
+
+- **deps**: update module github.com/charmbracelet/bubbletea to v0.26.5 (#129)
+
 ## 0.9.8 (2024-06-17)
 
 ### Fix
