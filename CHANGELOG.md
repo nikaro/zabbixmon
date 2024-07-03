@@ -1,4 +1,10 @@
 <a name="unreleased"></a>
+## 0.9.11 (2024-07-03)
+
+### Fix
+
+- **deps**: go version and deps
+
 ## 0.9.10 (2024-07-01)
 
 ### Fix
