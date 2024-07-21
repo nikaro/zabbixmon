@@ -10,7 +10,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.12.1
 	github.com/fabiang/go-zabbix v1.0.0
 	github.com/gen2brain/beeep v0.0.0-20240516210008-9c006672e7f4
-	github.com/samber/lo v1.45.0
+	github.com/samber/lo v1.46.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 )
