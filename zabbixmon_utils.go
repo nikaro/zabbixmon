@@ -49,7 +49,9 @@ func openUrl(url string) error {
 // send notification for all items
 func notify(items, prevItems []zabbixmonItem) {
 	if config.Notify && len(prevItems) > 0 {
-		newItems, _ := lo.Difference(items, prevItems)
+		itemsLight := lo.Map(items, func(x zabbixmonItem, _ int) zabbixmonItemLight { return x.zabbixmonItemLight })
+		prevItemsLight := lo.Map(prevItems, func(x zabbixmonItem, _ int) zabbixmonItemLight { return x.zabbixmonItemLight })
+		newItems, _ := lo.Difference(itemsLight, prevItemsLight)
 
 		for _, item := range newItems {
 			slog.Debug("", slog.String("type", "new_item"), slog.String("item", fmt.Sprintf("%#v", item)))

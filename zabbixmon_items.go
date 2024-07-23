@@ -28,13 +28,18 @@ var hostAvalability = map[string]int{
 	"UNAVAILABLE": zabbix.HostInterfaceAvailabilityUnavailable,
 }
 
-type zabbixmonItem struct {
+type zabbixmonItemLight struct {
 	Host        string `json:"host"`
 	Status      string `json:"status"`
 	Description string `json:"desc"`
-	Time        string `json:"time"`
-	Ack         bool   `json:"ack"`
-	Url         string `json:"url"`
+}
+
+type zabbixmonItem struct {
+	zabbixmonItemLight
+	Time string              `json:"time"`
+	Ack  bool                `json:"ack"`
+	Url  string              `json:"url"`
+	Tags []zabbix.TriggerTag `json:"tags"`
 }
 
 func getSession(server string, username string, password string, insecure bool) *zabbix.Session {
@@ -73,6 +78,7 @@ func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []
 		MonitoredOnly:     true,
 		SelectHosts:       []string{"host"},
 		SelectLastEvent:   "extend",
+		SelectTags:        "extend",
 		ExpandDescription: true,
 		MinSeverity:       triggerSeverity[minSeverity],
 	}
@@ -81,12 +87,12 @@ func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []
 		slog.Error("cannot get triggers", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-	slog.Debug(
-		"",
-		slog.String("type", "triggers_raw"),
-		slog.String("scope", "all"),
-		slog.String("triggers", fmt.Sprintf("%#v", triggers)),
-	)
+	// slog.Debug(
+	// 	"",
+	// 	slog.String("type", "triggers_raw"),
+	// 	slog.String("scope", "all"),
+	// 	slog.String("triggers", fmt.Sprintf("%#v", triggers)),
+	// )
 
 	// ensure we only have currently in problem state
 	triggers = lo.Filter(triggers, func(x zabbix.Trigger, _ int) bool { return x.LastEvent.Value == 1 })
@@ -94,14 +100,15 @@ func getTriggers(zapi *zabbix.Session, minSeverity string) (triggerItemsUnack []
 	// tranform triggers into structured items
 	severity := lo.Invert(triggerSeverity)
 	triggerItemsAll := lo.Map(triggers, func(x zabbix.Trigger, _ int) zabbixmonItem {
-		return zabbixmonItem{
-			Host:        x.Hosts[0].Hostname,
-			Status:      strings.ToUpper(severity[x.Severity]),
-			Description: x.Description,
-			Time:        x.LastEvent.Timestamp().Format("2006-01-02 15:04"),
-			Ack:         bool(x.LastEvent.Acknowledged),
-			Url:         fmt.Sprintf("%s/tr_events.php?triggerid=%s&eventid=%s", server, x.TriggerID, x.LastEvent.EventID),
-		}
+		z := zabbixmonItem{}
+		z.Host = x.Hosts[0].Hostname
+		z.Status = strings.ToUpper(severity[x.Severity])
+		z.Description = x.Description
+		z.Time = x.LastEvent.Timestamp().Format("2006-01-02 15:04")
+		z.Ack = bool(x.LastEvent.Acknowledged)
+		z.Url = fmt.Sprintf("%s/tr_events.php?triggerid=%s&eventid=%s", server, x.TriggerID, x.LastEvent.EventID)
+		z.Tags = x.Tags
+		return z
 	})
 	slog.Debug(
 		"",
@@ -156,14 +163,14 @@ func getHosts(zapi *zabbix.Session) (hostItemsUnavailable []zabbixmonItem, hostI
 	// tranform hosts into structured items
 	availability := lo.Invert(hostAvalability)
 	hostItemsAll := lo.Map(hosts, func(x zabbix.Host, _ int) zabbixmonItem {
-		return zabbixmonItem{
-			Host:        x.Hostname,
-			Status:      availability[x.Available],
-			Description: fmt.Sprintf("Host in %s state", availability[x.Available]),
-			Time:        "-",
-			Ack:         false,
-			Url:         fmt.Sprintf("%s/hostinventories.php?hostid=%s", server, x.HostID),
-		}
+		z := zabbixmonItem{}
+		z.Host = x.Hostname
+		z.Status = availability[x.Available]
+		z.Description = fmt.Sprintf("Host in %s state", availability[x.Available])
+		z.Time = "-"
+		z.Ack = false
+		z.Url = fmt.Sprintf("%s/hostinventories.php?hostid=%s", server, x.HostID)
+		return z
 	})
 	slog.Debug(
 		"",
@@ -211,6 +218,17 @@ func getItems(zapi *zabbix.Session, itemTypes []string, minSeverity string, grep
 	if present := lo.Contains(itemTypes, "unknown"); present {
 		items = append(items, hostItemsUnknown...)
 	}
+
+	// filter tags
+	items = lo.Filter(items, func(x zabbixmonItem, _ int) bool {
+		found := false
+		lo.ForEach(x.Tags, func(y zabbix.TriggerTag, _ int) {
+			if y.Name == "Team" && y.Value == "ik-platforms" {
+				found = true
+			}
+		})
+		return found
+	})
 
 	// filter items on hostnames
 	if grep != "" {
