@@ -2,7 +2,7 @@ module github.com/nikaro/zabbixmon
 
 go 1.22
 
-toolchain go1.22.5
+toolchain go1.22.6
 
 require (
 	github.com/charmbracelet/bubbles v0.18.0
