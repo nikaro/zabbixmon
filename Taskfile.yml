@@ -81,14 +81,26 @@ tasks:
           export GOARCH=$(echo {{.ITEM}} | cut -d/ -f2);
           go build -o build/${APP}-${GOOS}-${GOARCH} .
 
+  bump:
+    desc: Bump version
+    cmd: cz bump --changelog --changelog-to-stdout > _changelog.md
+
+  release:
+    desc: Publish release
+    cmds:
+      - goreleaser release --clean --release-notes _changelog.md
+      - defer: rm -rf _changelog.md
+
   clean:
     desc: Clenaup build files
     cmds:
       - rm -rf ./build/
       - rm -rf ./dist/
+      - rm -rf _changelog.md
 
   install:
     desc: Install the application
+    deps: [build]
     cmd: install build/${APP}-${GOOS}-${GOARCH} ${BINDIR}/${APP}
 
   uninstall:
