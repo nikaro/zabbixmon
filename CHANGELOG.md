@@ -1,4 +1,12 @@
 <a name="unreleased"></a>
+## 0.9.12 (2024-08-17)
+
+### Fix
+
+- **deps**: update dependency go to v1.22.6 (#140)
+- **deps**: update module github.com/samber/lo to v1.46.0 (#136)
+- **deps**: update go packages (#134)
+
 ## 0.9.11 (2024-07-03)
 
 ### Fix
