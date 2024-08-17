@@ -1,0 +1,96 @@
+version: '3'
+
+set: [errexit, nounset, pipefail]
+shopt: [globstar]
+
+includes:
+  lint:
+    taskfile: https://github.com/nikaro/meta/raw/main/taskfiles/lint.yml
+    internal: true
+  format:
+    taskfile: https://github.com/nikaro/meta/raw/main/taskfiles/format.yml
+    internal: true
+
+env:
+  APP: zabbixmon
+  BINDIR:
+    sh: echo ${BINDIR:-/usr/local/bin}
+  CGO_ENABLED: 0
+  GOARCH:
+    sh: go env GOARCH
+  GOOS:
+    sh: go env GOOS
+
+tasks:
+  init:
+    desc: Initialize repositry
+    cmds:
+      - git config core.hooksPath .githooks
+      - git config commit.template .gitmessage
+
+  lint:
+    desc: Run linters
+    cmds:
+      - task: lint:default
+      - task: lint:go
+
+  lint:go:
+    desc: Lint Go files
+    sources:
+      - ./**/*.go
+    cmds:
+      - test -z $(goimports -l .)
+      - go vet ./...
+      - go fix ./...
+      - staticcheck ./...
+      - govulncheck ./...
+      - golangci-lint run
+
+  format:
+    desc: Run formatters
+    cmds:
+      - task: format:default
+      - task: format:go
+
+  format:go:
+    desc: Format Go files
+    sources:
+      - ./**/*.go
+    cmd: goimports -w -l .
+
+  test:
+    desc: Run tests
+    cmd: go test ./...
+
+  update:
+    desc: Update dependencies
+    cmds:
+      - go get -u all
+      - go mod tidy
+
+  build:
+    desc: Build application
+    cmd: go build -o build/${APP}-${GOOS}-${GOARCH} .
+
+  build:all:
+    desc: Build for all targets
+    cmds:
+      - for: [linux/amd64, linux/arm64, darwin/amd64, darwin/arm64, windows/amd64, windows/arm64]
+        cmd: >-
+          export GOOS=$(echo {{.ITEM}} | cut -d/ -f1);
+          export GOARCH=$(echo {{.ITEM}} | cut -d/ -f2);
+          go build -o build/${APP}-${GOOS}-${GOARCH} .
+
+  clean:
+    desc: Clenaup build files
+    cmds:
+      - rm -rf ./build/
+      - rm -rf ./dist/
+
+  install:
+    desc: Install the application
+    cmd: install build/${APP}-${GOOS}-${GOARCH} ${BINDIR}/${APP}
+
+  uninstall:
+    desc: Uninstall the application
+    cmd: rm -rf ${BINDIR}/${APP}

@@ -23,3 +23,6 @@ config.toml
 
 # Artifacts
 _changelog.md
+
+# Taskfile
+.task/

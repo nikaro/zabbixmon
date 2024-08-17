@@ -1,4 +1,3 @@
----
 name: CD
 
 on:
@@ -15,17 +14,18 @@ jobs:
   release:
     name: Release
     needs: [ci]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-        with:
-          fetch-depth: 0
+        env:
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: gh repo clone ${{ github.repository }} -- --branch "$BRANCH"
 
       - name: Dry run
-        uses: commitizen-tools/commitizen-action@1f11eb222996406681d2bfa1eb3d997eca46557c # 0.21.0
+        uses: commitizen-tools/commitizen-action@master
         with:
           github_token: ${{ github.token }}
           changelog_increment_filename: _changelog.md
@@ -33,14 +33,14 @@ jobs:
 
       - name: Bump
         if: env.PREVIOUS_REVISION != env.REVISION
-        uses: commitizen-tools/commitizen-action@1f11eb222996406681d2bfa1eb3d997eca46557c # 0.21.0
+        uses: commitizen-tools/commitizen-action@master
         with:
           github_token: ${{ github.token }}
           changelog_increment_filename: _changelog.md
 
       - name: Setup Go
         if: env.PREVIOUS_REVISION != env.REVISION
-        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
+        uses: actions/setup-go@main
         with:
           cache: true
           check-latest: true
@@ -48,7 +48,7 @@ jobs:
 
       - name: Run GoReleaser
         if: env.PREVIOUS_REVISION != env.REVISION
-        uses: goreleaser/goreleaser-action@286f3b13b1b49da4ac219696163fb8c1c93e1200 # v6.0.0
+        uses: goreleaser/goreleaser-action@master
         with:
           args: release --clean --release-notes _changelog.md
         env:
