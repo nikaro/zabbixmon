@@ -65,7 +65,7 @@ jobs:
             go-task \
 
       - name: Build
-        run: task build --yes
+        run: task go:build --yes
 
   test:
     name: Test
@@ -85,4 +85,4 @@ jobs:
             go-task \
 
       - name: Test
-        run: task build --yes
+        run: task go:test --yes
