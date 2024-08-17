@@ -38,6 +38,8 @@ tasks:
     desc: Lint Go files
     sources:
       - ./**/*.go
+      - ./go.mod
+      - ./go.sum
     cmds:
       - test -z $(goimports -l .)
       - go vet ./...
@@ -56,6 +58,8 @@ tasks:
     desc: Format Go files
     sources:
       - ./**/*.go
+      - ./go.mod
+      - ./go.sum
     cmd: goimports -w -l .
 
   test:
@@ -70,6 +74,10 @@ tasks:
 
   build:
     desc: Build application
+    sources:
+      - ./**/*.go
+      - ./go.mod
+      - ./go.sum
     cmd: go build -o build/${APP}-${GOOS}-${GOARCH} .
 
   build:all:
@@ -83,10 +91,15 @@ tasks:
 
   bump:
     desc: Bump version
+    preconditions:
+      - cz bump --dry-run --changelog --changelog-to-stdout > _changelog.md
     cmd: cz bump --changelog --changelog-to-stdout > _changelog.md
 
   release:
     desc: Publish release
+    preconditions:
+      - test -n "$AUR_KEY"
+      - test -n "$GITHUB_TOKEN"
     cmds:
       - goreleaser release --clean --release-notes _changelog.md
       - defer: rm -rf _changelog.md
