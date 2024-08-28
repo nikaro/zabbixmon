@@ -1,4 +1,11 @@
 <a name="unreleased"></a>
+## 0.9.14 (2024-08-28)
+
+### Fix
+
+- **deps**: bump github.com/charmbracelet/bubbles from 0.18.0 to 0.19.0 (#145)
+- **deps**: bump github.com/charmbracelet/bubbletea (#143)
+
 ## 0.9.13 (2024-08-21)
 
 ### Fix
