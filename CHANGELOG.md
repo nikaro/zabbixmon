@@ -1,4 +1,10 @@
 <a name="unreleased"></a>
+## 0.9.21 (2025-02-05)
+
+### Fix
+
+- **deps**: update go packages
+
 ## 0.9.20 (2025-01-08)
 
 ### Fix
